@@ -15,6 +15,12 @@ class Factory:
     _ildx_factory: IldaFactory
     _dmx_factory: DmxFactory
 
+    def _empty_ildx_factory_function(frame: IldxFrame):
+        pass
+
+    def _empty_dmx_factory_function(frame: DmxFrame):
+        pass
+
     def __init__(
         self,
         fps: float,
@@ -38,7 +44,7 @@ class Factory:
         self._ildx_factory = IldaFactory(
             fps,
             start_timestamp,
-            lambda _: None,
+            self._empty_ildx_factory_function,
             ildx_filename,
             point_density,
             show_exclusion_zones,
@@ -51,7 +57,7 @@ class Factory:
         self._dmx_factory = DmxFactory(
             fps,
             start_timestamp,
-            lambda _: None,
+            self._empty_dmx_factory_function,
             dmx_filename,
             dmx_universe,
             save_dmx_as_binary
