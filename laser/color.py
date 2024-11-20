@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Tuple, List
+import numpy as np
 
 
 class Color:
@@ -118,10 +119,11 @@ class ColorGradient:
 
     def get_color(self, position: float) -> Color:
         for i in range(len(self._colors) - 1):
-            if self._colors[i][0] <= position <= self._colors[i + 1][0]:
+            if self._colors[i][0] < position <= self._colors[i + 1][0]:
                 ratio = (position - self._colors[i][0]) / (self._colors[i + 1][0] - self._colors[i][0])
                 if self._interpolation_mode == 'rgb':
                     return self._colors[i][1].interpolate_rgb(self._colors[i + 1][1], ratio)
                 else:
                     return self._colors[i][1].interpolate_hsv(self._colors[i + 1][1], ratio)    
-        return self._colors[-1][1]
+        color = self._colors[0][1]
+        return color

@@ -1,7 +1,6 @@
 import numpy as np
 
 from laser.color import ColorGradient
-from laser.displacement import Displacement
 from laser.shapes.polyline import Polyline  
 
 
@@ -13,10 +12,9 @@ class Triangle(Polyline):
         point2: np.ndarray,
         point3: np.ndarray,
         color_gradient: ColorGradient,
-        displacement: Displacement | None = None,
         point_density: float | None = None
     ):
-        super().__init__([point1, point2, point3], True, color_gradient, displacement, point_density)
+        super().__init__([point1, point2, point3], True, color_gradient, point_density)
 
     def is_point_inside(self, p):
         denominator = (self._points[1][1] - self._points[2][1]) * (self._points[0][0] - self._points[2][0]) + (self._points[2][0] - self._points[1][0]) * (self._points[0][1] - self._points[2][1])

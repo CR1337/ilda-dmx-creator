@@ -1,7 +1,6 @@
 import numpy as np
 
 from laser.color import ColorGradient
-from laser.displacement import Displacement
 from laser.shapes.polyline import Polyline  
 
 
@@ -12,10 +11,9 @@ class Line(Polyline):
         start: np.ndarray, 
         end: np.ndarray, 
         color_gradient: ColorGradient,
-        displacement: Displacement | None = None,
         point_density: float | None = None
     ):
-        super().__init__([start, end], False, color_gradient, displacement, point_density)
+        super().__init__([start, end], False, color_gradient, point_density)
 
     def get_centroid(self) -> np.ndarray:
         return 0.5 * (self._points[0] + self._points[1])

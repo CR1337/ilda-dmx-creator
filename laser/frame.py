@@ -36,3 +36,7 @@ class Frame:
         if shape.point_density is None:
             shape.point_density = self._point_density
         self._shapes.append((shape, is_exclusion_shape))
+
+    def __iadd__(self, shape: Shape):
+        self.add_shape(shape)
+        return self

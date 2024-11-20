@@ -1,7 +1,6 @@
 import numpy as np
 
 from laser.color import ColorGradient
-from laser.displacement import Displacement
 from laser.shapes.polyline import Polyline  
 
 
@@ -12,13 +11,12 @@ class Rectangle(Polyline):
         top_left: np.ndarray,
         bottom_right: np.ndarray,
         color_gradient: ColorGradient,
-        displacement: Displacement | None = None,
         point_density: float | None = None
     ):
         top_right = np.array([bottom_right[0], top_left[1]])
         bottom_left = np.array([top_left[0], bottom_right[1]])
         points = [top_left, bottom_left, bottom_right, top_right]
-        super().__init__(points, True, color_gradient, displacement, point_density)
+        super().__init__(points, True, color_gradient, point_density)
 
     def is_point_inside(self, p: np.ndarray) -> bool:
         return (

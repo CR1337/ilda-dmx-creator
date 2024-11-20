@@ -1,10 +1,12 @@
+from __future__ import annotations
 import numpy as np
 from abc import ABC, abstractmethod
 from typing import List, Generator, Tuple
 
 from laser.color import ColorGradient, Color
-from laser.displacement import Displacement
 from laser.render_line import RenderLine
+
+from noise import Noise2D, Noise3D
 
 
 class Shape(ABC):
@@ -13,21 +15,20 @@ class Shape(ABC):
 
     _point_density: float | None
     _color_gradient: ColorGradient
-    _displacement: Displacement | None
 
     _transformation_matrices: List[np.ndarray]
+    _displacements: List[Tuple[Noise2D | Noise3D, str | None]]
 
     def __init__(
         self, 
         color_gradient: ColorGradient,
-        displacement: Displacement | None = None,
         point_density: float | None = None
     ):
         self._color_gradient = color_gradient
-        self._displacement = displacement
         self._point_density = point_density
 
         self._transformation_matrices = []
+        self._displacements = []
 
     @abstractmethod
     def get_centroid(self) -> np.ndarray:
@@ -49,18 +50,56 @@ class Shape(ABC):
     def is_line_outside(self, p0: np.ndarray, p1: np.ndarray) -> bool:
         raise NotImplementedError("@abstractmethod _is_outside")
     
-    def get_render_lines(self) -> Generator[RenderLine, None, None]:
+    def _get_tangent(self, point_index: int, points: np.ndarray) -> np.ndarray:
+        if len(points) == 1:  # Single point
+            raise ValueError("Cannot get tangent for single point")
+        elif len(points) == 2:  # Two points
+            if np.array_equal(points[0], points[1]):
+                raise ValueError("Cannot get tangent for two identical points")
+            tangent_vector = points[1] - points[0]
+        else:  # Any other number of points
+            if point_index == 0:  # First point
+                tangent_vector = points[1] - points[0]
+            elif point_index == len(points) - 1:  # Last point
+                tangent_vector = points[-1] - points[-2]
+            else:  # Any other point
+                # compute chordal tangent:
+                (x1, y1), (x2, y2), (x3, y3) = points[point_index - 1:point_index + 2]
+
+                v12 = np.array([x2 - x1, y2 - y1])
+                v23 = np.array([x3 - x2, y3 - y2])
+
+                w12 = np.linalg.norm(v12)
+                w23 = np.linalg.norm(v23)
+                
+                tangent_vector = (w12 * v12 + w23 * v23) / (w12 + w23)
+
+        norm = np.linalg.norm(tangent_vector)
+        if norm > 0:
+            tangent_vector = tangent_vector / norm
+        return tangent_vector
+            
+    
+    def get_render_lines(self, timestamp: float) -> Generator[RenderLine, None, None]:
         points, colors, ts = self._compute_points()
         points = [
             self._apply_transformartions(point)
             for point in points
         ]
-        if self._displacement:
-            points = [
-                point + self._displacement.get_displacement(t, prev_p, point, next_p)
-                for prev_p, point, next_p, t in zip([None] + points[:-1], points, points[1:] + [None], ts)
-            ]
-        for p0, p1, color in zip(points[:-1], points[1:], colors):
+        points = [
+            self._apply_displacements(i, timestamp, points)
+            for i in range(len(points))
+        ]
+
+        filtered_points = []
+        filtered_colors = []
+        for p, c in zip(points, colors):
+            if p[0] <= -1 or p[0] >= 1 or p[1] <= -1 or p[1] >= 1:
+                continue
+            filtered_points.append(p)
+            filtered_colors.append(c)
+
+        for p0, p1, color in zip(filtered_points[:-1], filtered_points[1:], filtered_colors):
             yield RenderLine(p0, p1, color)
         
     
@@ -70,15 +109,31 @@ class Shape(ABC):
             affine_coordinates = np.dot(matrix, affine_coordinates)
         return np.array([affine_coordinates[0], affine_coordinates[1]]) / affine_coordinates[2]
     
-    def translate(self, translation: np.ndarray):
+    def _apply_displacements(self, point_index: int, timestamp: float, points: np.ndarray) -> np.ndarray:
+        tangent = self._get_tangent(point_index, points)
+        normal = np.array([-tangent[1], tangent[0]])
+        point = points[point_index]
+        displacement = np.array([0.0, 0.0])
+
+        for noise, swizzle in self._displacements:
+            if isinstance(noise, Noise2D):
+                displacement += noise.get_value(point, None, swizzle=swizzle) * normal
+            elif isinstance(noise, Noise3D):
+                displacement += noise.get_value(point, timestamp, swizzle=swizzle) * normal
+
+        return points[point_index] + displacement
+            
+    
+    def translate(self, translation: np.ndarray) -> Shape:
         matrix = np.array([
             [1, 0, translation[0]],
             [0, 1, translation[1]],
             [0, 0, 1]
         ])
         self._transformation_matrices.append(matrix)
+        return self
 
-    def rotate(self, angle: float, center: np.ndarray | None = None):
+    def rotate(self, angle: float, center: np.ndarray | None = None) -> Shape:
         if center is None:
             center = np.array([0.0, 0.0])
         matrix = np.array([
@@ -87,16 +142,22 @@ class Shape(ABC):
             [0, 0, 1]
         ])
         self._transformation_matrices.append(matrix)
+        return self
 
-    def scale(self, scale: np.ndarray, center: np.ndarray | None = None):
+    def scale(self, scale: np.ndarray, center: np.ndarray | None = None) -> Shape:
         if center is None:
-            center = np.ndarray([0.0, 0.0])
+            center = np.array([0.0, 0.0])
         matrix = np.array([
             [scale[0], 0, center[0]],
             [0, scale[1], center[1]],
             [0, 0, 1]
         ])
         self._transformation_matrices.append(matrix)
+        return self
+    
+    def displace(self, noise: Noise2D | Noise3D, *, swizzle: str | None = None) -> Shape:
+        self._displacements.append((noise, swizzle))
+        return self
 
     @property
     def point_density(self) -> float | None:

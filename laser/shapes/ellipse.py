@@ -3,7 +3,6 @@ from math import pi, sqrt
 from typing import List, Tuple
 
 from laser.color import ColorGradient, Color
-from laser.displacement import Displacement
 from laser.shapes.shape import Shape
 
 
@@ -17,10 +16,9 @@ class Ellipse(Shape):
         center: np.ndarray,
         radii: np.ndarray,
         color_gradient: ColorGradient,
-        displacement: Displacement | None = None,
         point_density: float | None = None
     ):
-        super().__init__(color_gradient, displacement, point_density)
+        super().__init__(color_gradient, point_density)
         self._center = center
         self._radii = radii
 
@@ -57,6 +55,10 @@ class Ellipse(Shape):
             points.append(np.array([x, y]))
             colors.append(self._color_gradient.get_color(t))
             ts.append(t)
+
+        points.append(points[0])
+        colors.append(colors[0])
+        ts.append(1)
 
         return points, colors, ts
     

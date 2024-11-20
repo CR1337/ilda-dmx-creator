@@ -10,10 +10,13 @@ class RenderLine:
     _blanked: bool
 
     def __init__(self, start: np.ndarray, end: np.ndarray, color: Color, blanked: bool = False):
-        self._start = start
-        self._end = end
+        self._start = start.copy()
+        self._end = end.copy()
         self._color = color
         self._blanked = blanked
+
+    def copy(self):
+        return RenderLine(self._start, self._end, self._color, self._blanked)
 
     def blank(self):
         self._blanked = True
