@@ -34,23 +34,33 @@ class ContinousSubchannel(Subchannel):
     def pulse(
         self, 
         t: float,
-        amplitude: float | Callable[[float], float] = 1.0,
+        amplitude: float | Callable[[float], float] = 0.5,
         frequency: float | Callable[[float], float] = 1.0,
         phase: float | Callable[[float], float] = 0.0,
-        shape: float | Callable[[float], float] = 0.5
+        shape: float | Callable[[float], float] = 0.5,
+        duty: float | Callable[[float], float] = 0.5,
+        vertical_shift: float | Callable[[float], float] = 1.0
     ) -> Tuple[int, int]:
         A = amplitude(t) if callable(amplitude) else amplitude
         f = frequency(t) if callable(frequency) else frequency
         phi = phase(t) if callable(phase) else phase
         s = (shape(t) if callable(shape) else shape) * 2
+        d = duty(t) if callable(duty) else duty
+        v = vertical_shift(t) if callable(vertical_shift) else vertical_shift
+        
         E = min(s, 1)
         alpha = max(s, 1) - 1
 
-        y_sine = np.sin(2 * np.pi * f * t + phi)
+        t_m = np.modf((t - phi) / f)[0] * f
+        t_1 = (f * t_m) / (2 * d)
+        t_2 = 1 / ((2 / f) * (1 - d)) * t_m + 1 - 1 / (2 * (1 - d))
+        T = t_1 if t_m <= d / f else t_2
+ 
+        y_sine = np.sin(2 * np.pi * T)
         y_ext_sine = np.sign(y_sine) * np.abs(y_sine) ** E
         y_tri = (2 / np.pi) * np.arcsin(y_sine)
         y_lerp = (1 - alpha) * y_ext_sine + alpha * y_tri
-        y = A * (y_lerp + 1) / 2
+        y = A * (y_lerp + v)
 
         return self.set_value(y)
 
