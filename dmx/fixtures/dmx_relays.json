@@ -1,0 +1,58 @@
+{
+    "name": "DMX Relays",
+    "url": "https://www.boutique-electroconcept.com/carte-dmx-4-sorties-relays.html",
+    "channels": [
+        {
+            "name": "relay_1",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 127]
+                },
+                "on": {
+                    "type": "category",
+                    "range": [128, 255]
+                }
+            }
+        },
+        {
+            "name": "relay_2",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 127]
+                },
+                "on": {
+                    "type": "category",
+                    "range": [128, 255]
+                }
+            }
+        },
+        {
+            "name": "relay_3",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 127]
+                },
+                "on": {
+                    "type": "category",
+                    "range": [128, 255]
+                }
+            }
+        },
+        {
+            "name": "relay_4",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 127]
+                },
+                "on": {
+                    "type": "category",
+                    "range": [128, 255]
+                }
+            }
+        }
+    ]
+}

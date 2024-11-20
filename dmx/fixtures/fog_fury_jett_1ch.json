@@ -1,0 +1,23 @@
+{
+    "name": "Fog Fury Jett 1CH",
+    "url": "https://www.thomann.de/intl/adj_fog_fury_jett.htm",
+    "channels": [
+        {
+            "name": "fog",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 15]
+                },
+                "color_macro_preview": {
+                    "type": "category",
+                    "range": [16, 31]
+                },
+                "on": {
+                    "type": "category",
+                    "range": [32, 255]
+                }
+            }
+        }
+    ]
+}

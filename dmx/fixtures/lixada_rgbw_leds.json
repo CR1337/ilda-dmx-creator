@@ -1,0 +1,72 @@
+{
+    "name": "Lixada RGBW LEDs",
+    "url": "https://www.amazon.de/gp/product/B083FGSYNZ/",
+    "channels": [
+        {
+            "name": "dimmer",
+            "subchannels": null
+        },
+        {
+            "name": "red",
+            "subchannels": null
+        },
+        {
+            "name": "green",
+            "subchannels": null
+        },
+        {
+            "name": "blue",
+            "subchannels": null
+        },
+        {
+            "name": "white",
+            "subchannels": null
+        },
+        {
+            "name": "strobe",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 7]
+                },
+                "speed": {
+                    "type": "value",
+                    "range": [8, 255]
+                }
+            }
+        },
+        {
+            "name": "color_selection",
+            "subchannels": {
+                "manual": {
+                    "type": "category",
+                    "range": [0, 10]
+                },
+                "auto": {
+                    "type": "category",
+                    "range": [11, 60]
+                },
+                "gradient": {
+                    "type": "value",
+                    "range": [61, 110]
+                },
+                "pulse": {
+                    "type": "value",
+                    "range": [111, 160]
+                },
+                "jump": {
+                    "type": "value",
+                    "range": [161, 210]
+                },
+                "voice": {
+                    "type": "category",
+                    "range": [211, 255]
+                }
+            }
+        },
+        {
+            "name": "color_selection_speed",
+            "subchannels": null
+        }
+    ]
+}

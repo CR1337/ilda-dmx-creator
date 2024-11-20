@@ -1,0 +1,64 @@
+{
+    "name": "Fog Fury Jett 1CH",
+    "url": "https://www.thomann.de/intl/adj_fog_fury_jett.htm",
+    "channels": [
+        {
+            "name": "fog",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 15]
+                },
+                "color_macro_preview": {
+                    "type": "category",
+                    "range": [16, 31]
+                },
+                "on": {
+                    "type": "category",
+                    "range": [32, 255]
+                }
+            }
+        },
+        {
+            "name": "red",
+            "subchannels": null
+        },
+        {
+            "name": "green",
+            "subchannels": null
+        },
+        {
+            "name": "blue",
+            "subchannels": null
+        },
+        {
+            "name": "amber",
+            "subchannels": null
+        },
+        {
+            "name": "strobing",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 31]
+                },
+                "speed": {
+                    "type": "value",
+                    "range": [32, 95]
+                },
+                "pulse": {
+                    "type": "value",
+                    "range": [96, 159]
+                },
+                "random": {
+                    "type": "value",
+                    "range": [160, 255]
+                }
+            }
+        },
+        {
+            "name": "dimmer",
+            "subchannels": null
+        }
+    ]
+}

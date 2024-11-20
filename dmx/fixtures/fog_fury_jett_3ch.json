@@ -1,0 +1,305 @@
+{
+    "name": "Fog Fury Jett 1CH",
+    "url": "https://www.thomann.de/intl/adj_fog_fury_jett.htm",
+    "channels": [
+        {
+            "name": "fog",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 15]
+                },
+                "color_macro_preview": {
+                    "type": "category",
+                    "range": [16, 31]
+                },
+                "on": {
+                    "type": "category",
+                    "range": [32, 255]
+                }
+            }
+        },
+        {
+            "name": "color_macro",
+            "subchannels": {
+                "color1": {
+                    "type": "category",
+                    "range": [0, 4]
+                },
+                "color2": {
+                    "type": "category",
+                    "range": [5, 8]
+                },
+                "color3": {
+                    "type": "category",
+                    "range": [9, 12]
+                },
+                "color4": {
+                    "type": "category",
+                    "range": [13, 16]
+                },
+                "color5": {
+                    "type": "category",
+                    "range": [17, 20]
+                },
+                "color6": {
+                    "type": "category",
+                    "range": [21, 24]
+                },
+                "color7": {
+                    "type": "category",
+                    "range": [25, 28]
+                },
+                "color8": {
+                    "type": "category",
+                    "range": [29, 32]
+                },
+                "color9": {
+                    "type": "category",
+                    "range": [33, 36]
+                },
+                "color10": {
+                    "type": "category",
+                    "range": [37, 40]
+                },
+                "color11": {
+                    "type": "category",
+                    "range": [41, 44]
+                },
+                "color12": {
+                    "type": "category",
+                    "range": [45, 48]
+                },
+                "color13": {
+                    "type": "category",
+                    "range": [49, 52]
+                },
+                "color14": {
+                    "type": "category",
+                    "range": [53, 56]
+                },
+                "color15": {
+                    "type": "category",
+                    "range": [57, 60]
+                },
+                "color16": {
+                    "type": "category",
+                    "range": [61, 64]
+                },
+                "color17": {
+                    "type": "category",
+                    "range": [65, 68]
+                },
+                "color18": {
+                    "type": "category",
+                    "range": [69, 72]
+                },
+                "color19": {
+                    "type": "category",
+                    "range": [73, 76]
+                },
+                "color20": {
+                    "type": "category",
+                    "range": [77, 80]
+                },
+                "color21": {
+                    "type": "category",
+                    "range": [81, 84]
+                },
+                "color22": {
+                    "type": "category",
+                    "range": [85, 88]
+                },
+                "color23": {
+                    "type": "category",
+                    "range": [89, 92]
+                },
+                "color24": {
+                    "type": "category",
+                    "range": [93, 96]
+                },
+                "color25": {
+                    "type": "category",
+                    "range": [97, 100]
+                },
+                "color26": {
+                    "type": "category",
+                    "range": [101, 104]
+                },
+                "color27": {
+                    "type": "category",
+                    "range": [105, 108]
+                },
+                "color28": {
+                    "type": "category",
+                    "range": [109, 112]
+                },
+                "color29": {
+                    "type": "category",
+                    "range": [113, 116]
+                },
+                "color30": {
+                    "type": "category",
+                    "range": [117, 120]
+                }, 
+                "color31": {
+                    "type": "category",
+                    "range": [121, 124]
+                },  
+                "color32": {
+                    "type": "category",
+                    "range": [125, 128]
+                },
+                "color33": {
+                    "type": "category",
+                    "range": [129, 132]
+                },
+                "color34": {
+                    "type": "category",
+                    "range": [133, 136]
+                },
+                "color35": {
+                    "type": "category",
+                    "range": [137, 140]
+                },
+                "color36": {
+                    "type": "category",
+                    "range": [141, 144]
+                },
+                "color37": {
+                    "type": "category",
+                    "range": [145, 148]
+                },
+                "color38": {
+                    "type": "category",
+                    "range": [149, 152]
+                },
+                "color39": {
+                    "type": "category",
+                    "range": [153, 156]
+                },
+                "color40": {
+                    "type": "category",
+                    "range": [157, 160]
+                },
+                "color41": {
+                    "type": "category",
+                    "range": [161, 164]
+                },
+                "color42": {
+                    "type": "category",
+                    "range": [165, 168]
+                },
+                "color43": {
+                    "type": "category",
+                    "range": [169, 172]
+                },
+                "color44": {
+                    "type": "category",
+                    "range": [173, 176]
+                },
+                "color45": {
+                    "type": "category",
+                    "range": [177, 180]
+                },
+                "color46": {
+                    "type": "category",
+                    "range": [181, 184]
+                },
+                "color47": {
+                    "type": "category",
+                    "range": [185, 188]
+                },
+                "color48": {
+                    "type": "category",
+                    "range": [189, 192]
+                },
+                "color49": {
+                    "type": "category",
+                    "range": [193, 196]
+                },
+                "color50": {
+                    "type": "category",
+                    "range": [197, 200]
+                },
+                "color51": {
+                    "type": "category",
+                    "range": [201, 204]
+                },
+                "color52": {
+                    "type": "category",
+                    "range": [205, 208]
+                },
+                "color53": {
+                    "type": "category",
+                    "range": [209, 212]
+                },
+                "color54": {
+                    "type": "category",
+                    "range": [213, 216]
+                },
+                "color55": {
+                    "type": "category",
+                    "range": [217, 220]
+                },
+                "color56": {
+                    "type": "category",
+                    "range": [221, 224]
+                },
+                "color57": {
+                    "type": "category",
+                    "range": [225, 228]
+                },
+                "color58": {
+                    "type": "category",
+                    "range": [229, 232]
+                },
+                "color59": {
+                    "type": "category",
+                    "range": [233, 236]
+                },
+                "color60": {
+                    "type": "category",
+                    "range": [237, 240]
+                },
+                "color61": {
+                    "type": "category",
+                    "range": [241, 244]
+                },
+                "color62": {
+                    "type": "category",
+                    "range": [245, 248]
+                },
+                "color63": {
+                    "type": "category",
+                    "range": [249, 252]
+                },
+                "color64": {
+                    "type": "category",
+                    "range": [253, 255]
+                }
+            }
+        },
+        {
+            "name": "strobing",
+            "subchannels": {
+                "off": {
+                    "type": "category",
+                    "range": [0, 31]
+                },
+                "speed": {
+                    "type": "value",
+                    "range": [32, 95]
+                },
+                "pulse": {
+                    "type": "value",
+                    "range": [96, 159]
+                },
+                "random": {
+                    "type": "value",
+                    "range": [160, 255]
+                }
+            }
+        }
+    ]
+}
