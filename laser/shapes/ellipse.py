@@ -93,3 +93,10 @@ class Ellipse(Shape):
     
     def is_line_outside(self, p0: np.ndarray, p1: np.ndarray) -> bool:
         return not self.is_point_inside(p0) or not self.is_point_inside(p1)
+    
+    def signed_distance(self, p: np.ndarray) -> float:
+        ...  # TODO
+    
+    def nearest_point(self, p: np.ndarray) -> np.ndarray:
+        ...  # TODO
+        

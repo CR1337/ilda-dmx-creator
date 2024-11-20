@@ -69,3 +69,9 @@ class Point(Shape):
     def displace(self, noise: Noise2D | Noise3D, tangent_frequency: float = 1.0, tangent_amplitude: float = 1.0, *, swizzle: str | None = None) -> Shape:
         self._tangent_noise = Noise1D.circle(np.array([tangent_frequency]), tangent_amplitude)
         return super().displace(noise, swizzle=swizzle)
+    
+    def signed_distance(self, p: np.ndarray) -> float:
+        return np.linalg.norm(self._point - p)
+    
+    def nearest_point(self, _: np.ndarray) -> np.ndarray:
+        return self._point

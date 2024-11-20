@@ -50,6 +50,19 @@ class Shape(ABC):
     def is_line_outside(self, p0: np.ndarray, p1: np.ndarray) -> bool:
         raise NotImplementedError("@abstractmethod _is_outside")
     
+    @abstractmethod
+    def signed_distance(self, p: np.ndarray) -> float:
+        raise NotImplementedError("@abstractmethod signed_distance")
+    
+    @abstractmethod
+    def nearest_point(self, p: np.ndarray) -> np.ndarray:
+        raise NotImplementedError("@abstractmethod nearest_point")
+    
+    @abstractmethod
+    def get_point(self, t: float) -> np.ndarray:
+        raise NotImplementedError("@abstractmethod get_point")
+        # TODO
+    
     def _get_tangent(self, point_index: int, points: np.ndarray) -> np.ndarray:
         if len(points) == 1:  # Single point
             raise ValueError("Cannot get tangent for single point")

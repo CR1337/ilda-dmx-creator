@@ -35,3 +35,9 @@ class Rectangle(Polyline):
     def is_line_outside(self, p0, p1) -> bool:
         return self.is_point_inside(p0) and self.is_point_inside(p1)
     
+    def signed_distance(self, p: np.ndarray) -> float:
+        ...  # TODO
+    
+    def nearest_point(self, p: np.ndarray) -> np.ndarray:
+        ...  # TODO
+    
