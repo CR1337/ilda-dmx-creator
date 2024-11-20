@@ -31,12 +31,12 @@ def factory_function(frame: Frame):
     frame += lamp1.red.default.pulse(
         frame.timestamp,
         1.0, 1.5,
-        0.0, 1.0
+        0.0, 0.5
     )
     frame += lamp2.red.default.pulse(
         frame.timestamp,
         0.5, 0.15,
-        0.0, 1.0
+        0.0, 0.5
     )
 
     if progress >= 1:
