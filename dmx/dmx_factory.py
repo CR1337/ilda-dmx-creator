@@ -3,6 +3,9 @@ from dmx.dmx import DmxHeader, DmxElement, DmxValue, DMX_MAGIC
 from typing import Callable, Dict, List
 from tqdm import tqdm
 import json
+from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import cpu_count
+from math import ceil
 
 
 class DmxFactory:
@@ -10,7 +13,8 @@ class DmxFactory:
     MILLISECONDS_PER_SECOND = 1000
 
     _fps: float
-    _start_timestamp: float
+    _duration: float
+    _start_t: float
     _factory_function: Callable[[Frame], None]
     _dmx_filename: str
     _universe: int = 0
@@ -19,30 +23,33 @@ class DmxFactory:
     def __init__(
         self, 
         fps: float, 
-        start_timestamp: float, 
+        duration: float,
+        start_t: float, 
         factory_function: Callable[[Frame], None],
         dmx_filename: str,
         universe: int = 0,
         save_as_binary: bool = True
     ):
         self._fps = fps
-        self._start_timestamp = start_timestamp
+        self._duration = duration
+        self._start_t = start_t
         self._factory_function = factory_function
         self._dmx_filename = dmx_filename
         self._universe = universe
         self._save_as_binary = save_as_binary
-
+    
+    def _fill_frame(self, frame: Frame) -> Frame:
+        self._factory_function(frame)
+        return frame
+    
     def _compute_frames(self) -> List[Frame]:
-        print("Computing frames...")
-        frames = []
-        timestamp = self._start_timestamp
-        while True:
-            frame = Frame(timestamp, self._fps)
-            self._factory_function(frame)
-            frames.append(frame)
-            if frame.is_last:
-                break
-            timestamp += 1.0 / self._fps
+        print("Computing DMX frames...")
+        empty_frames = (
+            Frame(self._start_t + (i / self._fps), self._fps, self._duration) 
+            for i in range(ceil(self._fps * self._duration))
+        )
+        with ProcessPoolExecutor(max_workers=cpu_count() - 1) as executor:
+            frames = list(tqdm(executor.map(self._fill_frame, empty_frames), total=ceil(self._fps * self._duration)))
         return frames
 
     def _compute_channels(self, frames: List[Frame]) -> Dict[float, Dict[int, int]]:
@@ -55,7 +62,7 @@ class DmxFactory:
             }
             diff = dict(set(new_values.items()) - set(last_values.items()))
             if len(diff) > 0:
-                channels[frame.timestamp] = diff
+                channels[frame.t] = diff
                 last_values = new_values
         return channels
     
@@ -69,9 +76,9 @@ class DmxFactory:
             duration=self.MILLISECONDS_PER_SECOND * len(channels) // self._fps
         )
         target.extend(bytearray(header))
-        for timestamp, values in channels.items():
+        for t, values in channels.items():
             element = DmxElement(
-                timestamp=int(timestamp * self.MILLISECONDS_PER_SECOND),
+                time=int(t * self.MILLISECONDS_PER_SECOND),
                 valueAmount=len(values)
             )
             target.extend(bytearray(element))

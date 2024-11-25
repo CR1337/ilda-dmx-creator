@@ -1,6 +1,8 @@
 import numpy as np
 from math import pi, sqrt
 from typing import List, Tuple
+from scipy.optimize import minimize
+from util import np_cache, ensure_np_array
 
 from laser.color import ColorGradient, Color
 from laser.shapes.shape import Shape
@@ -22,13 +24,10 @@ class Ellipse(Shape):
         self._center = center
         self._radii = radii
 
-    def get_centroid(self) -> np.ndarray:
-        return self._center
-    
     def _compute_points(self) -> Tuple[List[np.ndarray], List[Color], List[float]]:
         cirumference = pi * (3.0 * (self._radii[0] + self._radii[1]) - sqrt((3 * self._radii[0] + self._radii[1]) * (self._radii[0] + 3.0 * self._radii[1])))
 
-        spacing = 1.0 / (self._point_density * self.ILDA_RESOLUTION)
+        spacing = 1.0 / (self._point_density * self.ILDX_RESOLUTION)
         n_points = int(round(cirumference / spacing))
         
         points = []
@@ -62,22 +61,19 @@ class Ellipse(Shape):
 
         return points, colors, ts
     
-    def is_point_inside(self, p: np.ndarray) -> bool:
-        return (
-            (p[0] - self._center[0]) ** 2 / self._radii[0] ** 2 
-            + (p[1] - self._center[1]) ** 2 / self._radii[1] ** 2 
-            <= 1
-        )
-    
+    @ensure_np_array
     def is_line_inside(self, p0: np.ndarray, p1: np.ndarray) -> bool:
         # check if endpoints are inside the ellipse
         if self.is_point_inside(p0) or self.is_point_inside(p1):
             return True
         
+        p0_t = self._inv_transform(p0)
+        p1_t = self._inv_transform(p1)
+        
         # check if the line intersects the ellipse
-        A = (p1[0] - p0[0]) ** 2 / self._radii[0] ** 2 + (p1[1] - p0[1]) ** 2 / self._radii[1] ** 2
-        B = 2 * p0[0] * (p1[0] - p0[0]) / self._radii[0] ** 2 + 2 * p0[1] * (p1[1] - p0[1]) / self._radii[1] ** 2
-        C = p0[0] ** 2 / self._radii[0] ** 2 + p0[1] ** 2 / self._radii[1] ** 2 - 1
+        A = (p1_t[0] - p0_t[0]) ** 2 / self._radii[0] ** 2 + (p1_t[1] - p0_t[1]) ** 2 / self._radii[1] ** 2
+        B = 2 * p0_t[0] * (p1_t[0] - p0_t[0]) / self._radii[0] ** 2 + 2 * p0_t[1] * (p1_t[1] - p0_t[1]) / self._radii[1] ** 2
+        C = p0_t[0] ** 2 / self._radii[0] ** 2 + p0_t[1] ** 2 / self._radii[1] ** 2 - 1
 
         discriminant = B ** 2 - 4 * A * C
         if discriminant < 0:
@@ -91,12 +87,68 @@ class Ellipse(Shape):
         
         return False
     
+    @ensure_np_array
     def is_line_outside(self, p0: np.ndarray, p1: np.ndarray) -> bool:
         return not self.is_point_inside(p0) or not self.is_point_inside(p1)
     
+    @ensure_np_array
+    def _normalized_point_and_radius(self, p: np.ndarray) -> Tuple[np.ndarray, float]:
+        p_norm = p - self._center / self._radii
+        r = np.linalg.norm(p_norm)
+        return p_norm, r
+
+    @ensure_np_array
     def signed_distance(self, p: np.ndarray) -> float:
-        ...  # TODO
-    
+        p_t = self._inv_transform(p)
+        p_r = p_t - self._center
+        q = self.nearest_point(p)
+        return np.sign((p_r[0] / self._radii[0]) ** 2 + (p_r[1] / self._radii[1]) ** 2 - 1) * np.linalg.norm(p_r - q)
+
+    @np_cache
     def nearest_point(self, p: np.ndarray) -> np.ndarray:
-        ...  # TODO
+        p_t = self._inv_transform(p)
+
+        def objective(theta: float) -> float:
+            x = self._center[0] + self._radii[0] * np.cos(theta)
+            y = self._center[1] + self._radii[1] * np.sin(theta)
+            return (x - p_t[0]) ** 2 + (y - p_t[1]) ** 2
+    
+        theta0 = np.arctan2(p_t[1] - self._center[1], p_t[0] - self._center[0])
+        result = minimize(objective, theta0, bounds=[(0, 2 * np.pi)])
+        theta_opt = result.x[0]
+        x = self._center[0] + self._radii[0] * np.cos(theta_opt)
+        y = self._center[1] + self._radii[1] * np.sin(theta_opt)
+        return np.array([x, y])
         
+    def point_by_s(self, s: float, t: float) -> np.ndarray:
+        if s < 0.0 or s > 1.0:
+            raise ValueError("t must be in the range [0, 1]")
+        
+        angle = 2.0 * pi * s
+        x = self._center[0] + self._radii[0] * np.cos(angle)
+        y = self._center[1] + self._radii[1] * np.sin(angle)
+        
+        point = np.array([x, y])
+        point = self._displace(self._transform(point), t, s)
+        return point
+
+    def tangent(self, s: float) -> np.ndarray:
+        tangent_vector = np.array([
+            -self._radii[0] * np.sin(2.0 * pi * s),
+            self._radii[1] * np.cos(2.0 * pi * s)
+        ])
+        tangent_vector = self._transform(tangent_vector)
+        tangent_vector /= np.linalg.norm(tangent_vector)
+        return tangent_vector
+
+    def copy(self) -> Shape:
+        ellipse = Ellipse(
+            self._center.copy(),
+            self._radii.copy(),
+            self._color_gradient.copy(),
+            self._point_density
+        )
+        ellipse._transformations = [t.copy() for t in self._transformations]
+        ellipse._inverse_transformations = [t.copy() for t in self._inverse_transformations]
+        ellipse._displacements = self._displacements
+        return ellipse

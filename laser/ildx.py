@@ -2,15 +2,16 @@ import ctypes
 
 
 ILDX_MAGIC = 0x494C4458
+ILDA_MAGIC = 0x494C4441
 
-ILDA_STATUS_CODE_LAST_POINT_MASK = 0b10000000;
-ILDA_STATUS_CODE_BLANKING_MASK = 0b01000000;
+ILDX_STATUS_CODE_LAST_POINT_MASK = 0b10000000;
+ILDX_STATUS_CODE_BLANKING_MASK = 0b01000000;
 
 
 class IldxHeader(ctypes.BigEndianStructure):
     _fields_ = [
         ('ildxMagic', ctypes.c_uint32),
-        ('startTimestamp', ctypes.c_uint8 * 3),
+        ('starttime', ctypes.c_uint8 * 3),
         ('formatCode', ctypes.c_uint8),
         ('frameName', ctypes.c_char * 8),
         ('companyName', ctypes.c_char * 8),
@@ -72,7 +73,11 @@ class Ilda2dTrueColorRecord(ctypes.BigEndianStructure):
     ]
 
 
-def adjust_start_timestamp(timestamp: int) -> bytes:
-    bytes_data = timestamp.to_bytes(3, byteorder='big')
+def adjust_start_time(time: int) -> bytes:
+    bytes_data = time.to_bytes(3, byteorder='big')
     bytes_array = (ctypes.c_uint8 * 3)(*bytes_data)
     return bytes_array
+
+
+def zero_start_time() -> bytes:
+    return (ctypes.c_uint8 * 3)(*bytes([0, 0, 0]))

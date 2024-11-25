@@ -25,7 +25,7 @@ def init(frame: Frame):
 
 
 def factory_function(frame: Frame):
-    progress = frame.timestamp / 3.0
+    progress = frame.t / 3.0
 
     if progress == 0.0:
         init(frame)
@@ -44,7 +44,7 @@ def factory_function(frame: Frame):
 if __name__ == "__main__":
     factory = DmxFactory(
         fps=30,
-        start_timestamp=0,
+        start_t=0,
         factory_function=factory_function,
         dmx_filename="examples/output/dmx_on_off.json",
         universe=0,

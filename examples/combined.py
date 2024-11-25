@@ -19,7 +19,7 @@ DURATION: float = 3.0
 
 
 def factory_function(ildx_frame: IldxFrame, dmx_frame: DmxFrame):
-    progress = ildx_frame.timestamp / DURATION
+    progress = ildx_frame.t / DURATION
 
     dmx_frame += lamp.dimmer << 1
     dmx_frame += lamp.red << progress
@@ -38,7 +38,7 @@ def factory_function(ildx_frame: IldxFrame, dmx_frame: DmxFrame):
 if __name__ == "__main__":
     factory = Factory(
         fps=30,
-        start_timestamp=0,
+        start_t=0,
         factory_function=factory_function,
         ildx_filename="examples/output/combined.ildx",
         dmx_filename="examples/output/combined.json",

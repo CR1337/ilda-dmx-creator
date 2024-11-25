@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import Tuple, List
-import numpy as np
 
 
 class Color:
@@ -28,6 +27,12 @@ class Color:
             self.s = component_1
             self.v = component_2
             self._compute_rgb() 
+
+    def __eq__(self, other: Color) -> bool:
+        return self.r == other.r and self.g == other.g and self.b == other.b
+    
+    def __hash__(self) -> int:
+        return hash((self.r, self.g, self.b))
 
     def _compute_rgb(self):
         c = self.v * self.s
@@ -100,6 +105,9 @@ class Color:
             self.v + (other.v - self.v) * ratio,
             is_rgb=False
         )
+    
+    def copy(self) -> Color:
+        return Color(self.r, self.g, self.b)
 
 
 class ColorGradient:
@@ -113,17 +121,36 @@ class ColorGradient:
         self._colors = [(0.0, start_color), (1.0, end_color)]
         self._interpolation_mode = interpolation_mode
 
-    def add_color(self, position: float, color: Color):
-        self._colors.append((position, color))
+    def __eq__(self, other: ColorGradient) -> bool:
+        if len(self._colors) != len(other._colors):
+            return False
+        for i in range(len(self._colors)):
+            if self._colors[i] != other._colors[i]:
+                return False
+        if self._interpolation_mode != other._interpolation_mode:
+            return False
+        return True
+    
+    def __hash__(self) -> int:
+        return hash(tuple(self._colors) + (self._interpolation_mode,))
+
+    def add_color(self, s: float, color: Color):
+        self._colors.append((s, color))
         self._colors.sort(key=lambda x: x[0])
 
-    def get_color(self, position: float) -> Color:
+    def get_color(self, s: float) -> Color:
         for i in range(len(self._colors) - 1):
-            if self._colors[i][0] < position <= self._colors[i + 1][0]:
-                ratio = (position - self._colors[i][0]) / (self._colors[i + 1][0] - self._colors[i][0])
+            if self._colors[i][0] < s <= self._colors[i + 1][0]:
+                ratio = (s - self._colors[i][0]) / (self._colors[i + 1][0] - self._colors[i][0])
                 if self._interpolation_mode == 'rgb':
                     return self._colors[i][1].interpolate_rgb(self._colors[i + 1][1], ratio)
                 else:
                     return self._colors[i][1].interpolate_hsv(self._colors[i + 1][1], ratio)    
         color = self._colors[0][1]
         return color
+    
+    def copy(self) -> ColorGradient:
+        color_gradient = ColorGradient(self._colors[0][1], interpolation_mode=self._interpolation_mode)
+        for position, color in self._colors[1:]:
+            color_gradient.add_color(position, color.copy())
+        return color_gradient

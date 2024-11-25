@@ -1,3 +1,3 @@
-# ILDA-DMX-Creator
+# ILDX-DMX-Creator
 
-A framework for programmatically developing ILDA- and DMX-Shows using python. For usage examples see the examples directory.
+A framework for programmatically developing ILDX- and DMX-Shows using python. For usage examples see the examples directory.

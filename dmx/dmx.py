@@ -16,7 +16,7 @@ class DmxHeader(ctypes.Structure):
 
 class DmxElement(ctypes.Structure):
     _fields_ = [
-        ('timestamp', ctypes.c_uint32),
+        ('time', ctypes.c_uint32),
         ('valueAmount', ctypes.c_uint16)
     ]
 

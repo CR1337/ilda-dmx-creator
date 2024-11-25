@@ -1,18 +1,15 @@
 import numpy as np
 
 from laser.color import ColorGradient, Color
-from noise import Noise1D, Noise2D, Noise3D
 from laser.shapes.shape import Shape 
+from util import ensure_np_array
 
 from typing import List, Tuple
-
-
 
 
 class Point(Shape):
 
     _point: np.ndarray
-    _tangent_noise: Noise1D | None
 
     def __init__(
         self, 
@@ -23,9 +20,6 @@ class Point(Shape):
         self._point = point
         self._tangent_noise = None
         super().__init__(color_gradient, point_density)
-
-    def get_centroid(self) -> np.ndarray:
-        return self._point
     
     def _compute_points(self) -> Tuple[List[np.ndarray], List[Color], List[float]]:
         return (
@@ -34,44 +28,44 @@ class Point(Shape):
             [0.0, 0.0]
         )
     
-    def is_point_inside(self, p: np.ndarray) -> bool:
-        return np.array_equal(self._point, p)
-    
+    @ensure_np_array
     def is_line_inside(self, p0: np.ndarray, p1: np.ndarray) -> bool:
+        p0_t = self._inv_transform(p0)
+        p1_t = self._inv_transform(p1)
         return (
-            (self._point[1] - p0[1]) * (p1[0] - p0[0]) == (p1[1] - p0[1]) * (self._point[0] - p0[0])
+            (self._point[1] - p0_t[1]) * (p1_t[0] - p0_t[0]) == (p1_t[1] - p0_t[1]) * (self._point[0] - p0_t[0])
             and (
-                min(p0[0], p1[0]) <= self._point[0] <= max(p0[0], p1[0])
-                and min(p0[1], p1[1]) <= self._point[1] <= max(p0[1], p1[1])
+                min(p0_t[0], p1_t[0]) <= self._point[0] <= max(p0_t[0], p1_t[0])
+                and min(p0_t[1], p1_t[1]) <= self._point[1] <= max(p0_t[1], p1_t[1])
             )
         )
     
+    @ensure_np_array
     def is_line_outside(self, p0: np.ndarray, p1: np.ndarray) -> bool:
         return not self.is_line_inside(p0, p1)
     
-    def _apply_displacements(self, point_index: int, timestamp: float, points: np.ndarray) -> np.ndarray:
-        if self._tangent_noise is None:
-            return points[point_index]
-        tangent_angle = self._tangent_noise.get_value(np.array([]), timestamp)
-        tangent = np.array([np.cos(tangent_angle), np.sin(tangent_angle)])
-        normal = np.array([-tangent[1], tangent[0]])
-        point = points[point_index]
-        displacement = np.array([0.0, 0.0])
+    @ensure_np_array
+    def signed_distance(self, p: np.ndarray, t: float) -> float:
+        p_t = self._inv_transform(p)
+        return np.linalg.norm(p_t - self._point)
+    
+    @ensure_np_array
+    def nearest_point(self, p: np.ndarray, t: float) -> np.ndarray:
+        return self._transform(self._point)
 
-        for noise, swizzle in self._displacements:
-            if isinstance(noise, Noise2D):
-                displacement += noise.get_value(point, None, swizzle=swizzle) * normal
-            elif isinstance(noise, Noise3D):
-                displacement += noise.get_value(point, timestamp, swizzle=swizzle) * normal
+    def point_by_s(self, s: float, t: float) -> np.ndarray:
+        return self._displace(self._transform(self._point), t, s)
+    
+    def tangent(self, s: float) -> np.ndarray:
+        np.array([0.0, 0.0])
 
-        return points[point_index] + displacement
-    
-    def displace(self, noise: Noise2D | Noise3D, tangent_frequency: float = 1.0, tangent_amplitude: float = 1.0, *, swizzle: str | None = None) -> Shape:
-        self._tangent_noise = Noise1D.circle(np.array([tangent_frequency]), tangent_amplitude)
-        return super().displace(noise, swizzle=swizzle)
-    
-    def signed_distance(self, p: np.ndarray) -> float:
-        return np.linalg.norm(self._point - p)
-    
-    def nearest_point(self, _: np.ndarray) -> np.ndarray:
-        return self._point
+    def copy(self) -> Shape:
+        point = Point(
+            self._point.copy(), 
+            self._color_gradient.copy(),
+            self._point_density
+        )
+        point._transformations = [t.copy() for t in self._transformations]
+        point._inverse_transformations = [t.copy() for t in self._inverse_transformations]
+        point._displacements = self._displacements
+        return point 

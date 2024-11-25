@@ -3,6 +3,7 @@ import opensimplex
 from random import randint
 import numpy as np
 from typing import Dict
+from util import ensure_np_array
 
 
 class Noise(ABC):
@@ -19,6 +20,7 @@ class Noise(ABC):
         "t": -1
     }
     
+    @ensure_np_array
     def __init__(
         self, 
         frequency: np.ndarray, 
@@ -42,23 +44,26 @@ class Noise(ABC):
             seed = randint(0, 2 ** 64 - 1)
         opensimplex.seed(seed)
 
+    @ensure_np_array
     @abstractmethod
-    def get_value(self, position: np.ndarray, time: float | None, *, swizzle: str | None = None) -> float:
+    def get_value(self, p: np.ndarray, t: float | None, *, swizzle: str | None = None) -> float:
         raise NotImplementedError("@abstractmethod get_value")
     
-    def __call__(self, position: np.ndarray, time: float | None = None, *, swizzle: str | None = None) -> float:
-        return self.get_value(position, time, swizzle=swizzle)
+    @ensure_np_array
+    def __call__(self, p: np.ndarray, t: float | None = None, *, swizzle: str | None = None) -> float:
+        return self.get_value(p, t, swizzle=swizzle)
     
-    def _swizzle_coordinates(self, position: np.ndarray, time: float | None, swizzle: str | None) -> np.ndarray:
-        if time is None:
-            if position.shape != (self.N_DIMENSIONS,):
+    @ensure_np_array
+    def _swizzle_coordinates(self, p: np.ndarray, t: float | None, swizzle: str | None) -> np.ndarray:
+        if t is None:
+            if p.shape != (self.N_DIMENSIONS,):
                 raise ValueError(f"position must have shape ({self.N_DIMENSIONS},)")
             default_swizzle = "xyzw"[:self.N_DIMENSIONS]
         else:
-            if position.shape != (self.N_DIMENSIONS - 1,):
+            if p.shape != (self.N_DIMENSIONS - 1,):
                 raise ValueError(f"position must have shape ({self.N_DIMENSIONS - 1},)")
             default_swizzle = "xyzw"[:self.N_DIMENSIONS - 1] + "t"
-            position = np.append(position, time)
+            p = np.append(p, t)
 
         swizzle = swizzle or default_swizzle
         if len(swizzle) != self.N_DIMENSIONS:
@@ -68,7 +73,7 @@ class Noise(ABC):
                 raise ValueError(f"Invalid swizzle character '{c}'")
 
         new_position = np.array([
-            position[self.SWIZZLE_TRANSLATION[swizzle[i]]] 
+            p[self.SWIZZLE_TRANSLATION[swizzle[i]]] 
             for i in range(self.N_DIMENSIONS)
         ])
         
@@ -80,14 +85,17 @@ class Noise1D(Noise):
     N_DIMENSIONS: int = 1
     MAX_N_WRAPPED_DIMENSIONS: int = 1
 
+    @ensure_np_array
     @classmethod
     def line(cls, frequency: np.ndarray = np.array([1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 0, seed)
     
+    @ensure_np_array
     @classmethod
     def circle(cls, frequency: np.ndarray = np.array([1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 1, seed)
     
+    @ensure_np_array
     def __init__(
         self,
         frequency: np.ndarray = np.array([1.0]),
@@ -97,8 +105,9 @@ class Noise1D(Noise):
     ):
         super().__init__(frequency, amplitude, n_wrapped_dimensions, seed)
 
-    def get_value(self, position: np.ndarray, time: float | None, *, swizzle: str | None = None) -> float:
-        pos = self._swizzle_coordinates(position, time, swizzle)
+    @ensure_np_array
+    def get_value(self, p: np.ndarray, t: float | None, *, swizzle: str | None = None) -> float:
+        pos = self._swizzle_coordinates(p, t, swizzle)
         if self._n_wrapped_dimensions == 0:  # line
             x = pos[0] * self._frequency[0]
             y = 0
@@ -114,18 +123,22 @@ class Noise2D(Noise):
     N_DIMENSIONS: int = 2
     MAX_N_WRAPPED_DIMENSIONS: int = 2
 
+    @ensure_np_array
     @classmethod
     def plane(cls, frequency: np.ndarray = np.array([1.0, 1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 0, seed)
     
+    @ensure_np_array
     @classmethod
     def cylinder(cls, frequency: np.ndarray = np.array([1.0, 1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 1, seed)
     
+    @ensure_np_array
     @classmethod
     def torus(cls, frequency: np.ndarray = np.array([1.0, 1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 2, seed)
 
+    @ensure_np_array
     def __init__(
         self,
         frequency: np.ndarray = np.array([1.0, 1.0]),
@@ -135,8 +148,9 @@ class Noise2D(Noise):
     ):
         super().__init__(frequency, amplitude, n_wrapped_dimensions, seed)
 
-    def get_value(self, position: np.ndarray, time: float | None, *, swizzle: str | None = None) -> float:
-        pos = self._swizzle_coordinates(position, time, swizzle)
+    @ensure_np_array
+    def get_value(self, p: np.ndarray, t: float | None, *, swizzle: str | None = None) -> float:
+        pos = self._swizzle_coordinates(p, t, swizzle)
         if self._n_wrapped_dimensions == 0:  # plane
             x = pos[0] * self._frequency[0]
             y = pos[1] * self._frequency[1]
@@ -160,18 +174,22 @@ class Noise3D(Noise):
     N_DIMENSIONS: int = 3
     MAX_N_WRAPPED_DIMENSIONS: int = 2
 
+    @ensure_np_array
     @classmethod
     def space(cls, frequency: np.ndarray = np.array([1.0, 1.0, 1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 0, seed)
     
+    @ensure_np_array
     @classmethod
     def cylindrical(cls, frequency: np.ndarray = np.array([1.0, 1.0, 1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 1, seed)
     
+    @ensure_np_array
     @classmethod
     def toroidal(cls, frequency: np.ndarray = np.array([1.0, 1.0, 1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 2, seed)
 
+    @ensure_np_array
     def __init__(
         self,
         frequency: np.ndarray = np.array([1.0, 1.0, 1.0]),
@@ -181,8 +199,9 @@ class Noise3D(Noise):
     ):
         super().__init__(frequency, amplitude, n_wrapped_dimensions, seed)
 
-    def get_value(self, position: np.ndarray, time: float | None, *, swizzle: str | None = None) -> float:
-        pos = self._swizzle_coordinates(position, time, swizzle)
+    @ensure_np_array
+    def get_value(self, p: np.ndarray, t: float | None, *, swizzle: str | None = None) -> float:
+        pos = self._swizzle_coordinates(p, t, swizzle)
         if self._n_wrapped_dimensions == 0:  # space
             x = pos[0] * self._frequency[0]
             y = pos[1] * self._frequency[1]
@@ -191,7 +210,7 @@ class Noise3D(Noise):
         elif self._n_wrapped_dimensions == 1:  # cylindrical
             x = np.cos(pos[0] * self._frequency[0] * np.pi * 2.0)
             y = np.sin(pos[0] * self._frequency[0] * np.pi * 2.0)
-            z = position[1] * self._frequency[1]
+            z = p[1] * self._frequency[1]
             w = pos[2] * self._frequency[2]
             v = opensimplex.noise4(x, y, z, w)
         elif self._n_wrapped_dimensions == 2:  # toroidal
@@ -209,10 +228,12 @@ class Noise4D(Noise):
     N_DIMENSIONS: int = 4
     MAX_N_WRAPPED_DIMENSIONS: int = 0
 
+    @ensure_np_array
     @classmethod
     def hyperspace(cls, frequency: np.ndarray = np.array([1.0, 1.0, 1.0, 1.0]), amplitude: float = 1.0, seed: int | None = None):
         return cls(frequency, amplitude, 0, seed)
     
+    @ensure_np_array
     def __init__(
         self,
         frequency: np.ndarray = np.array([1.0, 1.0, 1.0, 1.0]),
@@ -222,8 +243,9 @@ class Noise4D(Noise):
     ):
         super().__init__(frequency, amplitude, n_wrapped_dimensions, seed)
     
-    def get_value(self, position: np.ndarray, time: float | None, *, swizzle: str | None = None) -> float:
-        pos = self._swizzle_coordinates(position, time, swizzle)
+    @ensure_np_array
+    def get_value(self, p: np.ndarray, t: float | None, *, swizzle: str | None = None) -> float:
+        pos = self._swizzle_coordinates(p, t, swizzle)
         x = pos[0] * self._frequency[0]
         y = pos[1] * self._frequency[1]
         z = pos[2] * self._frequency[2]
