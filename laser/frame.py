@@ -41,6 +41,10 @@ class Frame:
     def progress(self) -> float:
         return self._t / self._duration
     
+    @property
+    def index(self) -> int:
+        return int(self._t * self._fps)
+    
     def add_shape(self, shape: Shape, is_exclusion_shape: bool = False):
         if shape is None:
             return

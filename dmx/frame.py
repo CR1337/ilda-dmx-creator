@@ -34,6 +34,10 @@ class Frame:
     def progress(self) -> float:
         return self._t / self._duration
     
+    @property
+    def index(self) -> int:
+        return int(self._t * self._fps)
+    
     def add_value(self, channel_value: Tuple[int, int]):
         self._channel_values.append(channel_value)
 
