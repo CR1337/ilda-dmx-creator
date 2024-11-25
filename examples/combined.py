@@ -30,14 +30,11 @@ def factory_function(ildx_frame: IldxFrame, dmx_frame: DmxFrame):
         ColorGradient(Color(1, 0, 0), Color(0, 1, 0))
     ).rotate(2 * np.pi * progress)
 
-    if progress >= 1:
-        ildx_frame.set_last()
-        dmx_frame.set_last()
-
 
 if __name__ == "__main__":
     factory = Factory(
         fps=30,
+        duration=DURATION,
         start_t=0,
         factory_function=factory_function,
         ildx_filename="examples/output/combined.ildx",
