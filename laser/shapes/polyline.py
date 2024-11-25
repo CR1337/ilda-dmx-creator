@@ -12,6 +12,8 @@ from laser.shapes.shape import Shape
 
 class Polyline(Shape):
 
+    DEFAULT_PARAMETRIC_STEP_SIZE: float = 0.01
+
     _points: List[np.ndarray]
     _closed: bool
 
@@ -24,6 +26,24 @@ class Polyline(Shape):
             color_gradient, point_density
         )
         return dummy_shape._combine_shapes(None, sdf, color_gradient)
+    
+    @classmethod
+    def from_parametric_equation(
+        cls, 
+        f: Callable[[float], np.ndarray], 
+        closed: bool,
+        color_gradient: ColorGradient,
+        point_amount: int | None = None, 
+        step_size: float | None = None,
+        point_density: float | None = None
+    ):
+        if step_size is None and point_amount is None:
+            step_size = cls.DEFAULT_PARAMETRIC_STEP_SIZE
+        elif step_size is None:
+            step_size = 1.0 / point_amount
+        
+        points = [f(s) for s in np.arange(0.0, 1.0 + step_size, step_size)]
+        return cls(points, closed, color_gradient, point_density)
 
     def __init__(
         self, 
