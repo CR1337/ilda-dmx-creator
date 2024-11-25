@@ -94,12 +94,12 @@ class Shape(ABC):
         return self.signed_distance(p) <= 0
 
     def get_render_lines(self, t: float) -> Generator[RenderLine, None, None]:
-        points, colors, ts = self._compute_points()
+        points, colors, s_s = self._compute_points()
         points = [
             self._displace(
-                self._transform(point), t, t
+                self._transform(point), s, t
             )
-            for point, t in zip(points, ts)
+            for point, s in zip(points, s_s)
         ]
 
         filtered_points = []
