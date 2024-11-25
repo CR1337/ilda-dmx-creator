@@ -31,7 +31,6 @@ class Polyline(Shape):
     def from_parametric_equation(
         cls, 
         f: Callable[[float], np.ndarray], 
-        closed: bool,
         color_gradient: ColorGradient,
         point_amount: int | None = None, 
         step_size: float | None = None,
@@ -43,7 +42,7 @@ class Polyline(Shape):
             step_size = 1.0 / point_amount
         
         points = [f(s) for s in np.arange(0.0, 1.0 + step_size, step_size)]
-        return cls(points, closed, color_gradient, point_density)
+        return cls(points, False, color_gradient, point_density)
 
     def __init__(
         self, 
