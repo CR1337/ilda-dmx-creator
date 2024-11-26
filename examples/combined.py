@@ -15,26 +15,21 @@ with open("dmx/fixtures/lixada_rgbw_leds.json", 'r') as f:
     lamp = Fixture.from_dict(json.load(f), 1)
 
 
-DURATION: float = 3.0
-
-
 def factory_function(ildx_frame: IldxFrame, dmx_frame: DmxFrame):
-    progress = ildx_frame.t / DURATION
-
     dmx_frame += lamp.dimmer << 1
-    dmx_frame += lamp.red << progress
+    dmx_frame += lamp.red << dmx_frame.progress
 
     ildx_frame += Circle(
         np.array([0.0, 0.0]), 
         0.5, 
         ColorGradient(Color(1, 0, 0), Color(0, 1, 0))
-    ).rotate(2 * np.pi * progress)
+    ).rotate(2 * np.pi * ildx_frame.progress)
 
 
 if __name__ == "__main__":
     factory = Factory(
         fps=30,
-        durations=DURATION,
+        durations=3.0,
         start_ts=0,
         factory_functions=factory_function,
         ildx_filename="examples/output/combined.ildx",

@@ -24,39 +24,35 @@ def init(frame: Frame):
 
 
 def factory_function(frame: Frame):
-    progress = frame.t / 3.0
-
-    if progress == 0.0:
+    if frame.progress == 0.0:
         init(frame)
 
-    if progress < 0.5:
+    if frame.progress < 0.5:
         frame += lamp1.strobe.speed.lerp(
             frame.t,
-            0.0, DURATION / 2,
+            0.0, frame.duration / 2,
             0.0, 1.0
         )
     else:
         frame += lamp1.strobe.speed.lerp(
             frame.t,
-            DURATION / 2, DURATION,
+            frame.duration / 2, frame.duration,
             1.0, 0.0
         )
 
     frame += lamp2.red.default.lerp(
         frame.t,
-        0.0, DURATION,
+        0.0, frame.duration,
         0.0, 1.0
     )
-
-    if progress >= 1:
-        frame.set_last()
 
 
 if __name__ == "__main__":
     factory = DmxFactory(
         fps=30,
-        start_t=0,
-        factory_function=factory_function,
+        start_ts=0,
+        durations=3.0,
+        factory_functions=factory_function,
         dmx_filename="examples/output/dmx_lerp.json",
         universe=0,
         save_as_binary=False

@@ -10,9 +10,6 @@ from laser.shapes import Ellipse, Circle, Line, Rectangle, Square, Star
 import numpy as np
 
 
-DURATION: float = 3.0
-
-
 def create_exclusion_zones():
     shape_classes = [Ellipse, Ellipse, Line, Rectangle, Square, Star]
     mid_points = [
@@ -37,26 +34,23 @@ def create_exclusion_zones():
 
 
 def factory_function(frame: Frame):
-    progress = frame.t / DURATION
     circle = Circle(
         np.array([0.0, 0.0]), 
         0.5, 
         ColorGradient(Color(0, 1, 0), Color(0, 1, 1))
-    ).rotate(2 * np.pi * progress)
+    ).rotate(2 * np.pi * frame.progress)
     frame += circle
 
 
 if __name__ == "__main__":
     factory = IldxFactory(
         fps=30,
-        duration=DURATION,
-        start_t=0,
-        factory_function=factory_function,
+        durations=3.0,
+        start_ts=0,
+        factory_functions=factory_function,
         ildx_filename="examples/output/exclusion_zones.ildx",
         point_density=0.0002,
-        show_excluision_zones=True,
-        flip_x=False,
-        flip_y=False
+        show_excluision_zones=True
     )
     for zone in create_exclusion_zones():
         factory.add_exclusion_zone(zone)

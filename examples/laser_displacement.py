@@ -10,9 +10,6 @@ from laser.shapes import Shape, Circle
 import numpy as np
 
 
-DURATION: float = 3.0
-
-
 class Displace:
 
     def __init__(self, other_circle: Circle):
@@ -25,14 +22,12 @@ class Displace:
 
 
 def factory_function(frame: Frame):
-    progress = frame.t / DURATION
-
     color_gradient = ColorGradient(Color(1, 0, 0))
     color_gradient.add_color(0.5, Color(0, 0, 1))
 
     frame += (circle := Circle(np.array([-0.5, 0.0]), 0.4, color_gradient))
 
-    frame += Circle(np.array([0.4, 2 * progress - 1]), 0.4, color_gradient).displace(
+    frame += Circle(np.array([0.4, 2 * frame.progress - 1]), 0.4, color_gradient).displace(
         Displace(circle)
     )
 
@@ -40,13 +35,10 @@ def factory_function(frame: Frame):
 if __name__ == "__main__":
     factory = IldxFactory(
         fps=30,
-        durations=DURATION,
+        durations=3.0,
         start_ts=0,
         factory_functions=factory_function,
         ildx_filename="examples/output/displacement.ildx",
-        point_density=0.0005,
-        show_excluision_zones=False,
-        flip_x=False,
-        flip_y=False
+        point_density=0.0005
     )
     factory.run()
