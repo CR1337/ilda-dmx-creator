@@ -15,6 +15,7 @@ class Factory:
     _start_t: float
     _fps: float
     _duration: float
+    _point_density: float
 
     _ildx_factory: IldxFactory
     _dmx_factory: DmxFactory
@@ -47,6 +48,7 @@ class Factory:
         self._start_t = start_t
         self._fps = fps
         self._duration = duration
+        self._point_density = point_density
         self._ildx_factory = IldxFactory(
             fps,
             duration,
@@ -78,36 +80,15 @@ class Factory:
                 frame.add_shape(exclusion_shape, is_exclusion_shape=True)
         return frame, dmx_frame
     
-    def _compute_frames_mp(self) -> Tuple[List[IldxFrame], List[DmxFrame]]:
+    def _compute_frames(self) -> Tuple[List[IldxFrame], List[DmxFrame]]:
         print("Computing frames...")
         empty_frames = (
-            (IldxFrame(self._start_t + (i / self._fps), self._fps, self._duration), DmxFrame(self._start_t + (i / self._fps), self._fps, self._duration))
+            (IldxFrame(self._start_t + (i / self._fps), self._fps, self._duration, self._point_density), DmxFrame(self._start_t + (i / self._fps), self._fps, self._duration))
             for i in range(ceil(self._fps * self._duration))
         )
         with ProcessPoolExecutor(max_workers=cpu_count() - 1) as executor:
             frames = list(executor.map(lambda x: self._fill_frame(*x), empty_frames))
         ildx_frames, dmx_frames = zip(*frames)
-        return ildx_frames, dmx_frames
-
-    def _compute_frames(self) -> Tuple[List[IldxFrame], List[DmxFrame]]:
-        print("Computing frames...")
-        ildx_frames = []
-        dmx_frames = []
-        ildx_done, dmx_done = False, False
-        time = self._start_t
-        while not (ildx_done and dmx_done):
-            ildx_frame = IldxFrame(time, self._fps, self._duration, self._ildx_factory._point_density)
-            dmx_frame = DmxFrame(time, self._fps, self._duration)
-            self._factory_function(ildx_frame, dmx_frame)
-            if ildx_frame.is_last:
-                ildx_done = True
-            if dmx_frame.is_last:
-                dmx_done = True
-            time += 1.0 / self._ildx_factory._fps
-            if not ildx_done:
-                ildx_frames.append(ildx_frame)
-            if not dmx_done:
-                dmx_frames.append(dmx_frame)
         return ildx_frames, dmx_frames
 
     def run(self):
