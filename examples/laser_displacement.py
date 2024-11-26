@@ -40,9 +40,9 @@ def factory_function(frame: Frame):
 if __name__ == "__main__":
     factory = IldxFactory(
         fps=30,
-        duration=DURATION,
-        start_t=0,
-        factory_function=factory_function,
+        durations=DURATION,
+        start_ts=0,
+        factory_functions=factory_function,
         ildx_filename="examples/output/displacement.ildx",
         point_density=0.0005,
         show_excluision_zones=False,

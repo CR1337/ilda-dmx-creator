@@ -34,9 +34,9 @@ def factory_function(ildx_frame: IldxFrame, dmx_frame: DmxFrame):
 if __name__ == "__main__":
     factory = Factory(
         fps=30,
-        duration=DURATION,
-        start_t=0,
-        factory_function=factory_function,
+        durations=DURATION,
+        start_ts=0,
+        factory_functions=factory_function,
         ildx_filename="examples/output/combined.ildx",
         dmx_filename="examples/output/combined.json",
         point_density=0.001,

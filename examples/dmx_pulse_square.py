@@ -39,15 +39,13 @@ def factory_function(frame: Frame):
         0.0, 0.0
     )
 
-    if progress >= 1:
-        frame.set_last()
-
 
 if __name__ == "__main__":
     factory = DmxFactory(
         fps=30,
-        start_t=0,
-        factory_function=factory_function,
+        start_ts=0,
+        durations=DURATION,
+        factory_functions=factory_function,
         dmx_filename="examples/output/dmx_pulse_square.json",
         universe=0,
         save_as_binary=False
