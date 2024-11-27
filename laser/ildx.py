@@ -73,7 +73,11 @@ class Ilda2dTrueColorRecord(ctypes.BigEndianStructure):
     ]
 
 
-def adjust_start_time(time: int) -> bytes:
+MILLISECONDS_PER_SECOND = 1000
+
+
+def adjust_start_time(time: int | float) -> bytes:
+    time = int(time * MILLISECONDS_PER_SECOND)
     bytes_data = time.to_bytes(3, byteorder='big')
     bytes_array = (ctypes.c_uint8 * 3)(*bytes_data)
     return bytes_array

@@ -11,9 +11,6 @@ from noise import Noise3D
 import numpy as np
 
 
-DURATION: float = 3.0
-
-
 class Displace:
 
     def __init__(self, noise: Noise3D):
@@ -24,10 +21,8 @@ class Displace:
 
 
 def factory_function(frame: Frame):
-    progress = frame.t / DURATION
-
     color_gradient = ColorGradient(Color(1, 0, 0), Color(1, 0, 0))
-    color_gradient.add_color(progress, Color(0, 0, 1))
+    color_gradient.add_color(frame.progress, Color(0, 0, 1))
 
     ellipse = Ellipse(
         np.array([0.0, 0.0]), 
@@ -40,10 +35,10 @@ def factory_function(frame: Frame):
 if __name__ == "__main__":
     factory = IldxFactory(
         fps=30,
-        duration=DURATION,
-        start_t=0,
-        factory_function=factory_function,
+        durations=3.0,
+        start_ts=0,
+        factory_functions=factory_function,
         ildx_filename="examples/output/noise.ildx",
-        point_density=0.001,
+        point_density=0.001
     )
     factory.run()

@@ -10,12 +10,7 @@ from laser.shapes import Star
 import numpy as np
 
 
-DURATION: float = 3.0
-
-
 def factory_function(frame: Frame):
-    progress = frame.t / DURATION
-
     color_gradient = ColorGradient(Color(1, 0, 0))
     color_gradient.add_color(0.5, Color(0, 0, 1))
     
@@ -30,16 +25,16 @@ def factory_function(frame: Frame):
     frame += (star22 := star00.copy())
 
     star00.identity()
-    star10.translate(np.array([0.1, 0.1]) * (progress - DURATION / 2))
-    star20.rotate(progress * 2 * np.pi)
-    star01.scale(np.array([1.1, 1.1]) * (1 - progress))
-    star11.shear(np.array([0.1, 1.0]) * progress)
-    star21.skew(np.array([0.1, 1.0]) * progress)
-    star02.reflect(np.array([1, 0]) if int(10 * progress) % 2 == 0 else np.array([0, 1]))
-    star12.project(progress * 2 * np.pi)
+    star10.translate(np.array([0.1, 0.1]) * (frame.progress - frame.duration / 2))
+    star20.rotate(frame.progress * 2 * np.pi)
+    star01.scale(np.array([1.1, 1.1]) * (1 - frame.progress))
+    star11.shear(np.array([0.1, 1.0]) * frame.progress)
+    star21.skew(np.array([0.1, 1.0]) * frame.progress)
+    star02.reflect(np.array([1, 0]) if int(10 * frame.progress) % 2 == 0 else np.array([0, 1]))
+    star12.project(frame.progress * 2 * np.pi)
     star22.transform(np.array([
-        [0.8 + 0.2 * progress, -0.3 + 0.3 * progress, 0],
-        [0.6 - 0.6 * progress, 0.9 + 0.1 * progress, 0],
+        [0.8 + 0.2 * frame.progress, -0.3 + 0.3 * frame.progress, 0],
+        [0.6 - 0.6 * frame.progress, 0.9 + 0.1 * frame.progress, 0],
         [0, 0, 1]
     ]))
 
@@ -57,14 +52,10 @@ def factory_function(frame: Frame):
 if __name__ == "__main__":
     factory = IldxFactory(
         fps=30,
-        duration=DURATION,
-        start_t=0,
-        factory_function=factory_function,
-        ildx_filename="examples/output/transformation.ild",
-        point_density=0.0005,
-        show_excluision_zones=False,
-        flip_x=False,
-        flip_y=False,
-        legacy_mode=True
+        durations=3.0,
+        start_ts=0,
+        factory_functions=factory_function,
+        ildx_filename="examples/output/transformation.ildx",
+        point_density=0.0005
     )
     factory.run()
