@@ -34,8 +34,8 @@ class Channel:
         self._subchannels[name] = CategorySubchannel(name, min_value, max_value, self._value_changed)
         return self._subchannels[name]
 
-    def __getattr__(self, name: str) -> Subchannel:
-        return self._subchannels[name]
+    # def __getattr__(self, name: str) -> Subchannel:
+    #     return self._subchannels[name]
     
     def __getitem__(self, name: str) -> Subchannel:
         return self._subchannels[name]
