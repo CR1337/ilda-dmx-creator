@@ -40,8 +40,11 @@ class Fixture:
         self._channels[name] = channel
         return channel
     
-    def __getattr__(self, name: str) -> Channel:
+    def __getitem__(self, name: str) -> Channel:
         return self._channels[name]
+    
+    # def __getattr__(self, name: str) -> Channel:
+    #     return self._channels[name]
     
     @property
     def name(self) -> str:
