@@ -77,14 +77,13 @@ class Noise1D(Noise):
     ):
         super().__init__(frequency, amplitude, n_wrapped_dimensions, radii, seed)
 
-    @ensure_np_array
-    def get_value(self, p: np.ndarray) -> float:
+    def get_value(self, p: float) -> float:
         if self._n_wrapped_dimensions == 0:  # line
-            x = p[0] * self._frequency[0]
+            x = p * self._frequency[0]
             y = 0
         elif self._n_wrapped_dimensions == 1:  # circle
-            x = np.cos(p[0] * self._frequency[0] * np.pi * 2.0) * self._radii[0]
-            y = np.sin(p[0] * self._frequency[0] * np.pi * 2.0) * self._radii[0]
+            x = np.cos(p * self._frequency[0] * np.pi * 2.0) * self._radii[0]
+            y = np.sin(p * self._frequency[0] * np.pi * 2.0) * self._radii[0]
 
         v = opensimplex.noise2(x, y)
         return self._amplitude * v
