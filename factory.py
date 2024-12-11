@@ -61,7 +61,7 @@ class Factory:
         show_exclusion_zones: bool = False,
         flip_x: bool = False,
         flip_y: bool = False,
-        ildx_frame_name: str = "",
+        ildx_frame_names: List[str] = [],
         ildx_company_name: str = "",
         ildx_projector_number: int = 0,
         dmx_universe: int = 0,
@@ -82,7 +82,7 @@ class Factory:
             show_exclusion_zones,
             flip_x,
             flip_y,
-            ildx_frame_name,
+            ildx_frame_names,
             ildx_company_name,
             ildx_projector_number
         )
