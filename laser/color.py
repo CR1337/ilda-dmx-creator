@@ -15,6 +15,62 @@ class Color:
     @classmethod
     def black(cls) -> Color:
         return Color(0, 0, 0)
+    
+    @classmethod
+    def red(cls) -> Color:
+        return Color(1, 0, 0)
+    
+    @classmethod
+    def lime(cls) -> Color:
+        return Color(0, 1, 0)
+    
+    @classmethod
+    def blue(cls) -> Color:
+        return Color(0, 0, 1)
+    
+    @classmethod
+    def cyan(cls) -> Color:
+        return Color(0, 1, 1)
+    
+    @classmethod
+    def magenta(cls) -> Color:
+        return Color(1, 0, 1)
+    
+    @classmethod
+    def yellow(cls) -> Color:
+        return Color(1, 1, 0)
+    
+    @classmethod
+    def white(cls) -> Color:
+        return Color(1, 1, 1)
+    
+    @classmethod
+    def gray(cls) -> Color:
+        return Color(0.5, 0.5, 0.5)
+    
+    @classmethod
+    def maroon(cls) -> Color:
+        return Color(0.5, 0, 0)
+    
+    @classmethod
+    def olive(cls) -> Color:
+        return Color(0.5, 0.5, 0)
+    
+    @classmethod
+    def green(cls) -> Color:
+        return Color(0, 0.5, 0)
+    
+    @classmethod
+    def purple(cls) -> Color:
+        return Color(0.5, 0, 0.5)
+    
+    @classmethod
+    def teal(cls) -> Color:
+        return Color(0, 0.5, 0.5)
+    
+    @classmethod
+    def navy(cls) -> Color:
+        return Color(0, 0, 0.5)
 
     def __init__(self, component_0: float, component_1: float, component_2: float, is_rgb: bool = True):
         if is_rgb:
