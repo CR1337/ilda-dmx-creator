@@ -21,6 +21,11 @@ class Subchannel(ABC):
         value = int(self._min_value + value * (self._max_value - self._min_value))
         return self._callback(value)
     
+    def pulse_once(self, t: float, start_t: float, end_t: float, value: float = 1.0) -> Tuple[int, int]:
+        if t < start_t or t > end_t:
+            return self.set_value(0)
+        return self.set_value(value)
+    
     def __ilshift__(self, value: float) -> Tuple[int, int]:
         return self.set_value(value)
 
