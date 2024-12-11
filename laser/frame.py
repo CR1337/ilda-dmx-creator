@@ -28,6 +28,10 @@ class Frame:
         return self._t
     
     @property
+    def rel_t(self) -> float:
+        return self._t - self._start_t
+    
+    @property
     def duration(self) -> float:
         return self._duration
     
@@ -50,6 +54,10 @@ class Frame:
     @property
     def index(self) -> int:
         return int((self._t - self._start_t) * self._fps)
+    
+    @property
+    def total_frames(self) -> int:
+        return int(self._duration * self._fps)
     
     def add_shape(self, shape: Shape, is_exclusion_shape: bool = False):
         if shape is None:
