@@ -163,7 +163,7 @@ class IldxFactory:
                     desc=f"Animation {len(all_render_lines) + 1}/{len(animations)}"
                 ):
                     render_lines.append(frame)
-            # for frame in frames:
+            # for frame in animation:
             #     render_lines.append(self._compute_render_lines_for_frame(frame))
 
             if self._flip_x:
@@ -183,6 +183,8 @@ class IldxFactory:
         print("Writing ILDX file...")
         target = bytearray()
         for animation_idx, animation in enumerate(render_lines):
+            if all(len(frame) == 0 for frame in animation):
+                continue
             for frame_idx, frame in tqdm(
                 enumerate(animation), 
                 total=len(animation),
