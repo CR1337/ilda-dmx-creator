@@ -7,16 +7,19 @@ def np_hash(a: np.ndarray) -> int:
     return hash(a.tobytes())
 
 
-def np_as_key(a: np.ndarray) -> tuple:
-    return tuple(a.flatten())
+def np_as_key(a: np.ndarray | list) -> tuple:
+    if isinstance(a, list):
+        return tuple(a)
+    else:
+        return tuple(a.flatten())
 
 
 def np_cache(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        key = tuple((np_as_key(a) if isinstance(a, np.ndarray) else a for a in args))
+        key = tuple((np_as_key(a) if isinstance(a, (np.ndarray, list)) else a for a in args))
         if kwargs:
-            key += tuple([np_as_key(a) if isinstance(a, np.ndarray) else a for a in kwargs.values()])
+            key += tuple([np_as_key(a) if isinstance(a, (np.ndarray, list)) else a for a in kwargs.values()])
         if key in wrapper.cache:
             return wrapper.cache[key]
         result = func(*args, **kwargs)
