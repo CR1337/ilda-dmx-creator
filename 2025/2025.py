@@ -510,10 +510,23 @@ class ShowFactory:
         """
         pass
 
+    class LaserDotDisplacement:
+
+        _position: List[float]
+        _time: float
+
+        def __init__(self, position: List[float], time: float):
+            self._position = position
+            self._time = time
+
+        def __call__(self, shape: ls.Shape, p: np.ndarray, s: float, t: float) -> np.ndarray:
+            ...  # TODO
+
     def attack_shields_factory_function(self, ildx_frame: IldxFrame, dmx_frame: DmxFrame):
         """
         08:50 - 10:20
         """
+        explosion_duration = 0.2
         explosion_times = [
             self._string_to_seconds(t) for t in [
                 "9:30",
@@ -542,6 +555,26 @@ class ShowFactory:
             [ 0.6720902292351977,  -0.29776482833059215],
             [-0.8872600354646378,  -0.17821141293174353]
         ]
+        displacements = [
+            self.LaserDotDisplacement(position, time) 
+            for position, time in zip(explosion_positions, explosion_times)
+        ]
+        color_gradients = [
+            ColorGradient(
+                Color.green() 
+                if ildx_frame.t < explosion_time - explosion_duration 
+                else Color.white()
+            )
+            for explosion_time in explosion_times
+        ]
+        laser_dots = [
+            ls.Point(position, color_gradient)
+            for position, color_gradient in zip(explosion_positions, color_gradients)
+        ]
+        for time, dot, displacement in zip(explosion_times, laser_dots, displacements):
+            if ildx_frame.t > time + explosion_duration:
+                continue
+            ildx_frame += dot.displace(displacement)
 
     def battle_factory_function(self, ildx_frame: IldxFrame, dmx_frame: DmxFrame):
         """
