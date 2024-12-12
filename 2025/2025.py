@@ -147,6 +147,8 @@ class ShowFactory:
 
     # endregion
 
+    E: float = 2.1 * (1 / FPS)
+
     def __init__(self):
         self._load_fixtures()
         self._create_exclusion_zones()
@@ -179,14 +181,22 @@ class ShowFactory:
         for exclusion_zone in self.exclusion_zones:
             self.factory._ildx_factory.add_exclusion_zone(exclusion_zone)
 
+    def _eqal_time(self, t1: float, t2: float) -> bool:
+        return t1 - self.E <= t2 <= t1 + self.E
+    
+    def _time_between(self, t: float, t1: float, t2: float) -> bool:
+        return t1 <= t <= t2
+
+    def _string_to_seconds(self, t: str) -> float:
+        m, s = map(int, t.split(':'))
+        return m * 60 + s
+
     def _build_timings(self) -> Tuple[List[float], List[float]]:
         start_ts = []
         durations = []
         for t_start, t_end in zip(self.TIMINGS[:-1], self.TIMINGS[1:]):
-            m_start, s_start = map(int, t_start.split(':'))
-            m_end, s_end = map(int, t_end.split(':'))
-            start_t = m_start * 60 + s_start
-            end_t = m_end * 60 + s_end
+            start_t = self._string_to_seconds(t_start)
+            end_t = self._string_to_seconds(t_end)
             start_ts.append(start_t)
             durations.append(end_t - start_t)
         return start_ts, durations
@@ -241,18 +251,18 @@ class ShowFactory:
             self.lamp_r['white'] << 1
 
         t = 5 * 60 - 10
-        if ildx_frame.t - 0.1 <= t <= ildx_frame.t + 0.1:
+        if self._eqal_time(ildx_frame.t, t):
             dmx_frame += self.txt_laser['shutter']['off']()
             dmx_frame += self.txt_laser['color']['cyan']()
             dmx_frame += self.txt_laser['patterns1']['form7']()
 
         for i in range(9, -1, -1):
             t = 5 * 60 - i
-            if ildx_frame.t - 0.1 <= t <= ildx_frame.t + 0.1:
+            if self._eqal_time(ildx_frame.t, t):
                 dmx_frame += self.txt_laser['patterns2'][f'form{i+1}']()
 
         t = 5 * 60 + 1
-        if ildx_frame.t - 0.1 <= t <= ildx_frame.t + 0.1:
+        if self._eqal_time(ildx_frame.t, t):
             dmx_frame += self.txt_laser['shutter']['on']()
 
         if ildx_frame.t >= 4 * 60 + 50:
@@ -504,7 +514,34 @@ class ShowFactory:
         """
         08:50 - 10:20
         """
-        ...  # TODO
+        explosion_times = [
+            self._string_to_seconds(t) for t in [
+                "9:30",
+                "9:33",
+                "9:36",
+                
+                "9:38",
+                "9:40",
+                "9:42",
+
+                "9:43",
+                "9:44",
+                "9:45",
+            ]
+        ]
+        explosion_positions = [
+            [-0.8798828124999997,  -0.6477468390213816],
+            [ 0.12808227539062497, -0.7698171515213816],
+            [ 0.5894968133223687,  -0.7299901058799343],
+
+            [ 0.1225425318667763,  -0.6837334883840461],
+            [-0.8833473607113483,  -0.35269325657894746],
+            [ 0.10670712119654602, -0.55047607421875],
+
+            [ 0.11356393914473681, -0.4182241339432566],
+            [ 0.6720902292351977,  -0.29776482833059215],
+            [-0.8872600354646378,  -0.17821141293174353]
+        ]
 
     def battle_factory_function(self, ildx_frame: IldxFrame, dmx_frame: DmxFrame):
         """
