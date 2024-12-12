@@ -11,6 +11,7 @@ imageio==2.36.0
 ipykernel==6.29.5
 ipython==8.29.0
 jedi==0.19.2
+joblib==1.4.2
 jupyter_client==8.6.3
 jupyter_core==5.7.2
 kiwisolver==1.4.7
@@ -35,9 +36,11 @@ pyparsing==3.2.0
 python-dateutil==2.9.0.post0
 pyzmq==26.2.0
 scikit-image==0.24.0
+scikit-learn==1.6.0
 scipy==1.14.1
 six==1.16.0
 stack-data==0.6.3
+threadpoolctl==3.5.0
 tifffile==2024.9.20
 tornado==6.4.1
 tqdm==4.67.0
