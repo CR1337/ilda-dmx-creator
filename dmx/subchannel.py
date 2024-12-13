@@ -26,7 +26,7 @@ class Subchannel(ABC):
             return self.set_value(0)
         return self.set_value(value)
     
-    def __ilshift__(self, value: float) -> Tuple[int, int]:
+    def __lshift__(self, value: float) -> Tuple[int, int]:
         return self.set_value(value)
 
     @property
