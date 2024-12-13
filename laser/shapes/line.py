@@ -36,6 +36,19 @@ class Line(Polyline):
         return point
     
     def tangent(self, s: float) -> np.ndarray:
-        tagent_vector =  self.end - self.start
+        tangent_vector =  self.end - self.start
         tangent_vector = self._transform(tangent_vector)
-        return tangent_vector / np.linalg.norm(tagent_vector)
+        return tangent_vector / np.linalg.norm(tangent_vector)
+
+    @property
+    def center(self) -> np.ndarray:
+        return (self._points[0] + self._points[1]) / 2
+    
+    @property
+    def start(self) -> np.ndarray:
+        return self._points[0]
+    
+    @property
+    def end(self) -> np.ndarray:
+        return self._points[1]
+    
