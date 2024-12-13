@@ -52,7 +52,7 @@ class Polyline(Shape):
         point_density: float | None = None
     ):
         super().__init__(color_gradient, point_density)
-        self._points = points
+        self._points = [np.array(p) for p in points]
         self._closed = closed
 
         self._compute_total_length()
