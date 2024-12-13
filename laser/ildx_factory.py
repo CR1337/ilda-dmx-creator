@@ -154,13 +154,13 @@ class IldxFactory:
     def _compute_render_lines(self, animations: List[List[Frame]]) -> List[List[List[RenderLine]]]:
         print("Computing ILDX lines...")
         all_render_lines = []
-        for animation in animations:
+        for (animation, frame_name) in zip(animations, self._frame_names):
             render_lines = []
             with ProcessPoolExecutor(max_workers=cpu_count() - 1) as executor:
                 for frame in tqdm(
                     executor.map(self._compute_render_lines_for_frame, animation), 
                     total=len(animation),
-                    desc=f"Animation {len(all_render_lines) + 1}/{len(animations)}"
+                    desc=f"Animation ({len(all_render_lines) + 1}/{len(animations)}) '{frame_name}'"
                 ):
                     render_lines.append(frame)
             # for frame in animation:
@@ -182,13 +182,13 @@ class IldxFactory:
     def _write_file(self, render_lines: List[List[List[RenderLine]]]):
         print("Writing ILDX file...")
         target = bytearray()
-        for animation_idx, animation in enumerate(render_lines):
+        for animation_idx, (animation, frame_name) in enumerate(zip(render_lines, self._frame_names)):
             if all(len(frame) == 0 for frame in animation):
                 continue
             for frame_idx, frame in tqdm(
                 enumerate(animation), 
                 total=len(animation),
-                desc=f"Animation {len(target) + 1}/{len(render_lines)}"
+                desc=f"Animation ({len(target) + 1}/{len(render_lines)}) '{frame_name}'"
             ):
                 header = IldxHeader(
                     ildxMagic=ILDA_MAGIC,
