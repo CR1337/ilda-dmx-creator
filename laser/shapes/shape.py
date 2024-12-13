@@ -149,7 +149,7 @@ class Shape(ABC):
         raise NotImplementedError("@abstractmethod copy")
     
     def normal(self, s: float, t: float) -> np.ndarray:
-        tangent = self.tangent(s, t)
+        tangent = self.tangent(s)
         return np.array([-tangent[1], tangent[0]])
     
     def reset_transformations(self) -> Shape:
@@ -315,3 +315,7 @@ class Shape(ABC):
         polylines.sort(key=lambda x: x[1], reverse=True)
 
         return [polyline for polyline, _ in polylines]
+    
+    def set_color_gradient(self, color_gradient: ColorGradient) -> Shape:
+        self._color_gradient = color_gradient
+        return self
