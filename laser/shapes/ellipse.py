@@ -6,6 +6,7 @@ from util import np_cache, ensure_np_array
 
 from laser.color import ColorGradient, Color
 from laser.shapes.shape import Shape
+from laser.shapes.line import Line
 
 
 class Ellipse(Shape):
@@ -152,3 +153,25 @@ class Ellipse(Shape):
         ellipse._inverse_transformations = [t.copy() for t in self._inverse_transformations]
         ellipse._displacements = self._displacements
         return ellipse
+
+    def segments(self, n: int, t: float = 0.0) -> List[Line]:
+        S = np.linspace(0, 1, n + 1)
+        segments = [
+            Line(
+                self.point_by_s(S[i], t), 
+                self.point_by_s(S[i + 1], t), 
+                self._color_gradient, 
+                self._point_density
+            )
+            for i in range(n)
+        ]
+        return segments
+    
+    @property
+    def center(self) -> np.ndarray:
+        return self._center
+    
+    @property
+    def radii(self) -> np.ndarray:
+        return self._radii
+    
