@@ -11,6 +11,8 @@ class Noise(ABC):
     _amplitude: float
     _n_wrapped_dimensions: int
     _radii: np.ndarray
+
+    _seed: int
     
     @ensure_np_array
     def __init__(
@@ -39,7 +41,7 @@ class Noise(ABC):
 
         if seed is None:
             seed = randint(0, 2 ** 64 - 1)
-        opensimplex.seed(seed)
+        self._seed = int(seed)
 
     @ensure_np_array
     @abstractmethod
@@ -75,9 +77,12 @@ class Noise1D(Noise):
         radii: np.ndarray = np.array([]),
         seed: int | None = None
     ):
+        if isinstance(frequency, (int, float)):
+            frequency = np.array([frequency])
         super().__init__(frequency, amplitude, n_wrapped_dimensions, radii, seed)
 
     def get_value(self, p: float) -> float:
+        opensimplex.seed(self._seed)
         if self._n_wrapped_dimensions == 0:  # line
             x = p * self._frequency[0]
             y = 0
@@ -121,6 +126,7 @@ class Noise2D(Noise):
 
     @ensure_np_array
     def get_value(self, p: np.ndarray) -> float:
+        opensimplex.seed(self._seed)
         if self._n_wrapped_dimensions == 0:  # plane
             x = p[0] * self._frequency[0]
             y = p[1] * self._frequency[1]
@@ -172,6 +178,7 @@ class Noise3D(Noise):
 
     @ensure_np_array
     def get_value(self, p: np.ndarray) -> float:
+        opensimplex.seed(self._seed)
         if self._n_wrapped_dimensions == 0:  # space
             x = p[0] * self._frequency[0]
             y = p[1] * self._frequency[1]
@@ -216,6 +223,7 @@ class Noise4D(Noise):
     
     @ensure_np_array
     def get_value(self, p: np.ndarray) -> float:
+        opensimplex.seed(self._seed)
         x = p[0] * self._frequency[0]
         y = p[1] * self._frequency[1]
         z = p[2] * self._frequency[2]
