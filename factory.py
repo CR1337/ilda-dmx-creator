@@ -96,10 +96,12 @@ class Factory:
             save_dmx_as_binary
         )
     
-    def _compute_frames(self) -> Tuple[List[List[IldxFrame]], List[List[DmxFrame]]]:
+    def _compute_frames(self, animation_indices: List[int]) -> Tuple[List[List[IldxFrame]], List[List[DmxFrame]]]:
         print("Computing frames...")
         ildx_animations, dmx_animations = [], []
-        for start_t, duration, factory_function in zip(self._start_ts, self._durations, self._factory_functions):
+        for i, (start_t, duration, factory_function) in enumerate(zip(self._start_ts, self._durations, self._factory_functions)):
+            if i not in animation_indices:
+                continue
             frame_count = ceil(self._fps * duration)
             empty_frames = (
                 (IldxFrame(start_t, start_t + (i / self._fps), self._fps, duration, self._point_density), DmxFrame(start_t, start_t + (i / self._fps), self._fps, duration))
@@ -111,18 +113,20 @@ class Factory:
                 frames = list(tqdm(
                     executor.map(FillFrame(factory_function, exclusion_zones, show_exclusion_zones), empty_frames),
                     total=frame_count,
-                    desc=f"Animation {len(ildx_animations) + 1}/{len(self._durations)}"
+                    desc=f"Animation {i + 1}/{len(self._durations)}"
                 ))
             ildx_frames, dmx_frames = zip(*frames)
             ildx_animations.append(ildx_frames)
             dmx_animations.append(dmx_frames)
         return ildx_animations, dmx_animations
 
-    def run(self):
-        ildx_animations, dmx_animations = self._compute_frames()
+    def run(self, animation_indices: List[int] | None = None):
+        if animation_indices is None:
+            animation_indices = list(range(len(self._durations)))
+        ildx_animations, dmx_animations = self._compute_frames(animation_indices)
 
-        render_lines = self._ildx_factory._compute_render_lines(ildx_animations)
-        self._ildx_factory._write_file(render_lines)
+        render_lines = self._ildx_factory._compute_render_lines(ildx_animations, animation_indices)
+        self._ildx_factory._write_file(render_lines, animation_indices)
 
         channels = self._dmx_factory._compute_channels(dmx_animations)
         self._dmx_factory._write_file(channels)
