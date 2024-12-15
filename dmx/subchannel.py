@@ -46,22 +46,22 @@ class ContinousSubchannel(Subchannel):
     def pulse(
         self, 
         t: float | str,
-        amplitude: float | Callable[[float], float] = 0.5,
-        frequency: float | Callable[[float], float] = 1.0,
-        phase: float | Callable[[float], float] = 0.0,
-        shape: float | Callable[[float], float] = 0.5,
-        duty: float | Callable[[float], float] = 0.5,
-        vertical_shift: float | Callable[[float], float] = 1.0
+        amplitude: float = 0.5,
+        frequency: float = 1.0,
+        phase: float = 0.0,
+        shape: float = 0.5,
+        duty: float = 0.5,
+        vertical_shift: float = 1.0
     ) -> Tuple[int, int]:
         if isinstance(t, str):
             t = str_to_sec(t)
 
-        A = amplitude(t) if callable(amplitude) else amplitude
-        f = frequency(t) if callable(frequency) else frequency
-        phi = phase(t) if callable(phase) else phase
-        s = (shape(t) if callable(shape) else shape) * 2
-        d = duty(t) if callable(duty) else duty
-        v = vertical_shift(t) if callable(vertical_shift) else vertical_shift
+        A = amplitude
+        f = frequency
+        phi = phase
+        s = shape * 2
+        d = duty
+        v = vertical_shift
         
         E = min(s, 1)
         alpha = max(s, 1) - 1
