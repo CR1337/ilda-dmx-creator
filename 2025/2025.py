@@ -607,8 +607,24 @@ class ShowFactory:
         """
         07:30 - 08:50
         """
-        # no laser or dmx effects here
-        pass
+        # all fog fury lights off
+        dmx_frame += self.fog_fury_l['red'] << 0
+        dmx_frame += self.fog_fury_r['red'] << 0
+        dmx_frame += self.fog_fury_l['green'] << 0
+        dmx_frame += self.fog_fury_r['green'] << 0
+        dmx_frame += self.fog_fury_l['blue'] << 0
+        dmx_frame += self.fog_fury_r['blue'] << 0
+        dmx_frame += self.fog_fury_l['amber'] << 0
+        dmx_frame += self.fog_fury_r['amber'] << 0
+
+        # fog without lights
+        self.fog_fury_l['fog']['on'].pulse_once(
+            dmx_frame.t, "08:45", "08:54", 1
+        )
+        self.fog_fury_r['fog']['on'].pulse_once(
+            dmx_frame.t, "08:45", "08:54", 1
+        )
+
 
     def attack_factory_function(self, ildx_frame: IldxFrame, dmx_frame: DmxFrame):
         """
@@ -670,6 +686,15 @@ class ShowFactory:
                 continue
             ildx_frame += dot.displace(displacement)
 
+        # add fog to each shot
+        fog_furies = cycle([self.fog_fury_l, self.fog_fury_r])
+        for time, fog_fury in zip(explosion_times, fog_furies):
+            if fn.time_between(ildx_frame.t, time, time + 1):
+                fog_fury['fog'].pulse_once(
+                    dmx_frame.r, time, time + 0.5, 1
+                )
+        
+
     def shields_factory_function(self, ildx_frame: IldxFrame, dmx_frame: DmxFrame):
         """
         09:46 - 10:20
@@ -696,6 +721,14 @@ class ShowFactory:
                 n_segments
             )
         ]
+
+        # add fog to each shot
+        fog_furies = cycle([self.fog_fury_r, self.fog_fury_l])
+        for time, fog_fury in zip(dot_timings, fog_furies):
+            if fn.time_between(ildx_frame.t, time, time + 1):
+                fog_fury['fog']['on'].pulse_once(
+                    dmx_frame.r, time, time + 0.5, 1
+                )
 
         # create shield segments
         shield_ellipse = self.viewer_ellipse.copy()
