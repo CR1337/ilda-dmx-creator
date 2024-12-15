@@ -1,6 +1,10 @@
 .venv
 **/__pycache__
 *.ildx
+*.bin
+*.ild
+*.ilda
 examples/output/**
+
 
 test_2024
