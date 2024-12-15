@@ -1,6 +1,7 @@
 from abc import ABC
 import numpy as np
 from typing import Callable, Tuple
+from functions import str_to_sec
 
 
 class Subchannel(ABC):
@@ -21,7 +22,13 @@ class Subchannel(ABC):
         value = int(self._min_value + value * (self._max_value - self._min_value))
         return self._callback(value)
     
-    def pulse_once(self, t: float, start_t: float, end_t: float, value: float = 1.0) -> Tuple[int, int]:
+    def pulse_once(self, t: float | str, start_t: float | str, end_t: float | str, value: float = 1.0) -> Tuple[int, int]:
+        if isinstance(t, str):
+            t = str_to_sec(t)
+        if isinstance(start_t, str):
+            start_t = str_to_sec(start_t)
+        if isinstance(end_t, str):
+            end_t = str_to_sec(end_t)
         if t < start_t or t > end_t:
             return self.set_value(0)
         return self.set_value(value)
@@ -38,7 +45,7 @@ class ContinousSubchannel(Subchannel):
     
     def pulse(
         self, 
-        t: float,
+        t: float | str,
         amplitude: float | Callable[[float], float] = 0.5,
         frequency: float | Callable[[float], float] = 1.0,
         phase: float | Callable[[float], float] = 0.0,
@@ -46,6 +53,9 @@ class ContinousSubchannel(Subchannel):
         duty: float | Callable[[float], float] = 0.5,
         vertical_shift: float | Callable[[float], float] = 1.0
     ) -> Tuple[int, int]:
+        if isinstance(t, str):
+            t = str_to_sec(t)
+
         A = amplitude(t) if callable(amplitude) else amplitude
         f = frequency(t) if callable(frequency) else frequency
         phi = phase(t) if callable(phase) else phase
@@ -71,12 +81,18 @@ class ContinousSubchannel(Subchannel):
 
     def lerp(
         self, 
-        t: float, 
-        start_t: float, 
-        end_t: float, 
+        t: float | str, 
+        start_t: float | str, 
+        end_t: float | str, 
         start_value: float, 
         end_value: float
     ) -> Tuple[int, int]:
+        if isinstance(t, str):
+            t = str_to_sec(t)
+        if isinstance(start_t, str):
+            start_t = str_to_sec(start_t)
+        if isinstance(end_t, str):
+            end_t = str_to_sec(end_t)
         if t < start_t:
             y = start_value
         elif t > end_t:
@@ -88,12 +104,18 @@ class ContinousSubchannel(Subchannel):
     
     def smooth(
         self,
-        t: float,
-        start_t: float,
-        end_t: float,
+        t: float | str,
+        start_t: float | str,
+        end_t: float | str,
         start_value: float,
         end_value: float,
     ) -> Tuple[int, int]:
+        if isinstance(t, str):
+            t = str_to_sec(t)
+        if isinstance(start_t, str):
+            start_t = str_to_sec(start_t)
+        if isinstance(end_t, str):
+            end_t = str_to_sec(end_t)
         if t < start_t:
             y = start_value
         elif t > end_t:
