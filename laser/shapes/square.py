@@ -13,6 +13,6 @@ class Square(Rectangle):
         color_gradient: ColorGradient,
         point_density: float | None = None
     ):
-        bottom_right = top_left + np.array([side_length, side_length])
+        bottom_right = np.array(top_left) + np.array([side_length, side_length])
         super().__init__(top_left, bottom_right, color_gradient, point_density)
         
