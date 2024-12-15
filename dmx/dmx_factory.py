@@ -50,10 +50,12 @@ class DmxFactory:
         self._universe = universe
         self._save_as_binary = save_as_binary
     
-    def _compute_frames(self) -> List[List[Frame]]:
+    def _compute_frames(self, animation_indices: List[int]) -> List[List[Frame]]:
         print("Computing DMX frames...")
         animations = []
-        for duration, start_t, factory_function in zip(self._durations, self._start_ts, self._factory_functions):
+        for i, (duration, start_t, factory_function) in enumerate(zip(self._durations, self._start_ts, self._factory_functions)):
+            if i not in animation_indices:
+                continue
             empty_frames = (
                 Frame(start_t, start_t + (i / self._fps), self._fps, duration) 
                 for i in range(ceil(self._fps * duration))
@@ -62,7 +64,7 @@ class DmxFactory:
                 frames = list(tqdm(
                     executor.map(FillFrame(factory_function), empty_frames), 
                     total=ceil(self._fps * duration),
-                    desc=f"Animation {len(animations) + 1}/{len(self._durations)}"
+                    desc=f"Animation {i + 1}/{len(self._durations)}"
                 ))
             animations.append(frames)
         return animations
@@ -124,8 +126,10 @@ class DmxFactory:
         else:
             self._write_json_file(channels)
 
-    def run(self):
-        animations = self._compute_frames()
+    def run(self, animation_indices: List[int] | None = None):
+        if animation_indices is None:
+            animation_indices = list(range(len(self._durations)))
+        animations = self._compute_frames(animation_indices)
         channels = self._compute_channels(animations)
         self._write_file(channels)
         print("Done!")

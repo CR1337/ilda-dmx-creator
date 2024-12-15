@@ -101,10 +101,12 @@ class IldxFactory:
         else:
             return name
 
-    def _compute_frames(self) -> List[List[Frame]]:
+    def _compute_frames(self, animation_indices: List[int]) -> List[List[Frame]]:
         print("Computing ILDX animations...")
         animations = []
-        for start_t, duration, factory_function in zip(self._start_ts, self._durations, self._factory_functions):
+        for i, (start_t, duration, factory_function) in enumerate(zip(self._start_ts, self._durations, self._factory_functions)):
+            if i not in animation_indices:
+                continue    
             empty_frames = (
                 Frame(start_t, start_t + (i / self._fps), self._fps, duration, self._point_density) 
                 for i in range(ceil(self._fps * duration))
@@ -113,7 +115,7 @@ class IldxFactory:
                 frames = list(tqdm(
                     executor.map(FillFrame(factory_function, self._exclusion_zones, self._show_exclusion_zones), empty_frames), 
                     total=ceil(self._fps * duration), 
-                    desc=f"Animation {len(animations) + 1}/{len(self._durations)}"
+                    desc=f"Animation {i + 1}/{len(self._durations)}"
                 ))
             animations.append(frames)
         return animations
@@ -151,16 +153,17 @@ class IldxFactory:
             render_lines.insert(0, render_lines[0].copy())
         return render_lines
     
-    def _compute_render_lines(self, animations: List[List[Frame]]) -> List[List[List[RenderLine]]]:
+    def _compute_render_lines(self, animations: List[List[Frame]], animation_indices: List[int]) -> List[List[List[RenderLine]]]:
         print("Computing ILDX lines...")
         all_render_lines = []
-        for (animation, frame_name) in zip(animations, self._frame_names):
+        for i, animation in enumerate(animations):
+            animation_index = animation_indices[i]
             render_lines = []
             with ProcessPoolExecutor(max_workers=cpu_count() - 1) as executor:
                 for frame in tqdm(
                     executor.map(self._compute_render_lines_for_frame, animation), 
                     total=len(animation),
-                    desc=f"Animation ({len(all_render_lines) + 1}/{len(animations)}) '{frame_name}'"
+                    desc=f"Animation ({animation_index + 1}/{len(animations)}) '{self._frame_names[animation_index]}'"
                 ):
                     render_lines.append(frame)
             # for frame in animation:
@@ -179,16 +182,18 @@ class IldxFactory:
             all_render_lines.append(render_lines)
         return all_render_lines
     
-    def _write_file(self, render_lines: List[List[List[RenderLine]]]):
+    def _write_file(self, render_lines: List[List[List[RenderLine]]], animation_indices: List[int]):
         print("Writing ILDX file...")
         target = bytearray()
-        for animation_idx, (animation, frame_name) in enumerate(zip(render_lines, self._frame_names)):
+        for i, animation in enumerate(render_lines):
+            animation_idx = animation_indices[i]
+            frame_name = self._frame_names[animation_idx]
             if all(len(frame) == 0 for frame in animation):
                 continue
             for frame_idx, frame in tqdm(
                 enumerate(animation), 
                 total=len(animation),
-                desc=f"Animation ({len(target) + 1}/{len(render_lines)}) '{frame_name}'"
+                desc=f"Animation ({animation_idx + 1}/{len(render_lines)}) '{frame_name}'"
             ):
                 header = IldxHeader(
                     ildxMagic=ILDA_MAGIC,
@@ -241,8 +246,10 @@ class IldxFactory:
         with open(self._ildx_filename, 'wb') as file:
             file.write(target)
     
-    def run(self):
-        animations = self._compute_frames()
+    def run(self, animation_indices: List[int] | None = None):
+        if animation_indices is None:
+            animation_indices = list(range(len(self._durations)))
+        animations = self._compute_frames(animation_indices)
         render_lines = self._compute_render_lines(animations)
-        self._write_file(render_lines)
+        self._write_file(render_lines, animation_indices)
         print("Done!")
