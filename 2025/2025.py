@@ -690,8 +690,8 @@ class ShowFactory:
         fog_furies = cycle([self.fog_fury_l, self.fog_fury_r])
         for time, fog_fury in zip(explosion_times, fog_furies):
             if fn.time_between(ildx_frame.t, time, time + 1):
-                fog_fury['fog'].pulse_once(
-                    dmx_frame.r, time, time + 0.5, 1
+                fog_fury['fog']['on'].pulse_once(
+                    dmx_frame.t, time, time + 0.5, 1
                 )
         
 
@@ -727,7 +727,7 @@ class ShowFactory:
         for time, fog_fury in zip(dot_timings, fog_furies):
             if fn.time_between(ildx_frame.t, time, time + 1):
                 fog_fury['fog']['on'].pulse_once(
-                    dmx_frame.r, time, time + 0.5, 1
+                    dmx_frame.t, time, time + 0.5, 1
                 )
 
         # create shield segments
